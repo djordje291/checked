@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="product"
+            type="com.djordjeratkovic.checked.model.Product" />
+    </data>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.home.ui.home.scan.dialog.ProductDialog">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:elevation="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:paddingStart="6dp"
+                android:paddingEnd="16dp"
+                app:contentInsetStartWithNavigation="0dp"
+                app:navigationIcon="@drawable/ic_close" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/dimen_8"
+            android:layout_marginEnd="@dimen/dimen_8"
+            android:background="@drawable/imageview_background"
+            app:layout_constraintBottom_toTopOf="@+id/guideline3"
+            app:layout_constraintEnd_toStartOf="@+id/guideline4"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/brand"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dimen_8"
+            android:layout_marginBottom="@dimen/dimen_8"
+            android:hint="@string/brand"
+            app:counterEnabled="true"
+            app:counterMaxLength="20"
+            app:endIconMode="clear_text"
+            app:errorEnabled="true"
+            app:errorIconDrawable="@drawable/ic_error"
+            app:helperText="@string/required"
+            app:helperTextTextColor="@color/red"
+            app:layout_constraintEnd_toStartOf="@+id/guideline2"
+            app:layout_constraintStart_toStartOf="@+id/guideline4"
+            app:layout_constraintTop_toTopOf="@id/image">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/brandEditText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:maxLength="20"
+                android:text="@{product.brand}"
+                android:textSize="13sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/weight"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dimen_8"
+            android:layout_marginTop="@dimen/dimen_8"
+            android:hint="@string/weight"
+            app:counterEnabled="true"
+            app:counterMaxLength="20"
+            app:endIconMode="clear_text"
+            app:errorEnabled="true"
+            app:errorIconDrawable="@drawable/ic_error"
+            app:helperText="@string/required"
+            app:helperTextTextColor="@color/red"
+            app:layout_constraintBottom_toBottomOf="@id/image"
+            app:layout_constraintEnd_toStartOf="@+id/guideline2"
+            app:layout_constraintStart_toStartOf="@+id/guideline4"
+            app:layout_constraintTop_toBottomOf="@id/brand">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/weightEditText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:maxLength="20"
+                android:text="@{product.weight}"
+                android:textSize="13sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/name"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_8"
+            android:hint="@string/name"
+            app:counterEnabled="true"
+            app:counterMaxLength="30"
+            app:endIconMode="clear_text"
+            app:errorEnabled="true"
+            app:errorIconDrawable="@drawable/ic_error"
+            app:helperText="@string/required"
+            app:helperTextTextColor="@color/red"
+            app:layout_constraintEnd_toStartOf="@id/guideline2"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/guideline3">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/nameEditText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textSize="13sp"
+                android:maxLength="50"
+                android:text="@{product.name}" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/categoryTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_8"
+            android:text="@string/categories"
+            android:textColor="@color/orange"
+            android:textSize="15sp"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toBottomOf="@id/name" />
+
+        <RadioButton
+            android:id="@+id/categoryBtn1"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintWidth_percent="0.2"
+            app:layout_constraintHeight_percent="0.1"
+            android:layout_marginTop="@dimen/dimen_8"
+            android:background="@drawable/category_radio_button_background"
+            android:button="@null"
+            android:drawableTop="@drawable/ic_bottle_of_water"
+            android:gravity="center"
+            android:paddingTop="@dimen/dimen_8"
+            android:text="@string/drinks"
+            android:textColor="@drawable/category_radio_button_text"
+            android:textSize="11sp"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toBottomOf="@id/categoryTV" />
+
+        <RadioButton
+            android:id="@+id/categoryBtn2"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintWidth_percent="0.2"
+            app:layout_constraintHeight_percent="0.1"
+            android:background="@drawable/category_radio_button_background"
+            android:button="@null"
+            android:drawableTop="@drawable/ic_bread"
+            android:gravity="center"
+            android:paddingTop="@dimen/dimen_8"
+            android:text="@string/basic_foods"
+            android:textColor="@drawable/category_radio_button_text"
+            android:textSize="11sp"
+            app:layout_constraintBottom_toBottomOf="@id/categoryBtn1"
+            app:layout_constraintEnd_toStartOf="@id/categoryBtn3"
+            app:layout_constraintStart_toEndOf="@id/categoryBtn1"
+            app:layout_constraintTop_toTopOf="@id/categoryBtn1" />
+
+        <RadioButton
+            android:id="@+id/categoryBtn3"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintWidth_percent="0.2"
+            app:layout_constraintHeight_percent="0.1"
+            android:background="@drawable/category_radio_button_background"
+            android:button="@null"
+            android:drawableTop="@drawable/ic_milk"
+            android:gravity="center"
+            android:paddingTop="@dimen/dimen_8"
+            android:text="@string/dairy"
+            android:textColor="@drawable/category_radio_button_text"
+            android:textSize="11sp"
+            app:layout_constraintEnd_toStartOf="@id/categoryBtn4"
+            app:layout_constraintStart_toEndOf="@id/categoryBtn2"
+            app:layout_constraintTop_toTopOf="@id/categoryBtn1"
+            app:layout_constraintBottom_toBottomOf="@id/categoryBtn1"/>
+
+        <RadioButton
+            android:id="@+id/categoryBtn4"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintWidth_percent="0.2"
+            app:layout_constraintHeight_percent="0.1"
+            android:background="@drawable/category_radio_button_background"
+            android:button="@null"
+            android:drawableTop="@drawable/ic_steak"
+            android:gravity="center"
+            android:paddingTop="@dimen/dimen_8"
+            android:text="@string/meat"
+            android:textColor="@drawable/category_radio_button_text"
+            android:textSize="11sp"
+            app:layout_constraintEnd_toStartOf="@id/guideline2"
+            app:layout_constraintTop_toTopOf="@id/categoryBtn1"
+            app:layout_constraintBottom_toBottomOf="@id/categoryBtn1"/>
+
+
+        <RadioButton
+            android:id="@+id/categoryBtn5"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintWidth_percent="0.2"
+            app:layout_constraintHeight_percent="0.1"
+            android:layout_marginTop="@dimen/dimen_8"
+            android:background="@drawable/category_radio_button_background"
+            android:button="@null"
+            android:drawableTop="@drawable/ic_avocado"
+            android:gravity="center"
+            android:paddingTop="@dimen/dimen_8"
+            android:text="@string/fruits_and_vegetables"
+            android:textColor="@drawable/category_radio_button_text"
+            android:textSize="11sp"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toBottomOf="@id/categoryBtn1"/>
+
+        <RadioButton
+            android:id="@+id/categoryBtn6"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintWidth_percent="0.2"
+            app:layout_constraintHeight_percent="0.1"
+            android:background="@drawable/category_radio_button_background"
+            android:button="@null"
+            android:drawableTop="@drawable/ic_cookies"
+            android:gravity="center"
+            android:paddingTop="@dimen/dimen_8"
+            android:text="@string/sweets_and_snacks"
+            android:textColor="@drawable/category_radio_button_text"
+            android:textSize="11sp"
+            app:layout_constraintEnd_toStartOf="@id/categoryBtn7"
+            app:layout_constraintStart_toEndOf="@id/categoryBtn5"
+            app:layout_constraintTop_toTopOf="@id/categoryBtn5"
+            app:layout_constraintBottom_toBottomOf="@id/categoryBtn5"/>
+
+        <RadioButton
+            android:id="@+id/categoryBtn7"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintWidth_percent="0.2"
+            app:layout_constraintHeight_percent="0.1"
+            android:background="@drawable/category_radio_button_background"
+            android:button="@null"
+            android:drawableTop="@drawable/ic_ice_cream_cone"
+            android:gravity="center"
+            android:paddingTop="@dimen/dimen_8"
+            android:paddingStart="@dimen/dimen_4"
+            android:paddingEnd="@dimen/dimen_4"
+            android:text="@string/frozen_foods"
+            android:textColor="@drawable/category_radio_button_text"
+            android:textSize="11sp"
+            app:layout_constraintEnd_toStartOf="@id/categoryBtn8"
+            app:layout_constraintStart_toEndOf="@id/categoryBtn6"
+            app:layout_constraintTop_toTopOf="@id/categoryBtn5"
+            app:layout_constraintBottom_toBottomOf="@id/categoryBtn5"/>
+
+
+        <RadioButton
+            android:id="@+id/categoryBtn8"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintWidth_percent="0.2"
+            app:layout_constraintHeight_percent="0.1"
+            android:background="@drawable/category_radio_button_background"
+            android:button="@null"
+            android:drawableTop="@drawable/ic_baby_bottle"
+            android:gravity="center"
+            android:paddingTop="@dimen/dimen_8"
+            android:text="@string/household"
+            android:textColor="@drawable/category_radio_button_text"
+            android:textSize="11sp"
+            app:layout_constraintEnd_toStartOf="@id/guideline2"
+            app:layout_constraintTop_toTopOf="@id/categoryBtn5"
+            app:layout_constraintBottom_toBottomOf="@id/categoryBtn5"/>
+
+
+        <ScrollView
+            android:id="@+id/expirationDateSV"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/dimen_8"
+            android:layout_marginBottom="@dimen/dimen_8"
+            android:scrollbars="vertical"
+            android:fadeScrollbars="false"
+            app:layout_constraintBottom_toTopOf="@id/addExpirationDateBtn"
+            app:layout_constraintEnd_toStartOf="@id/guideline2"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toBottomOf="@id/categoryBtn5">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/expirationDateRV"
+                android:layout_width="match_parent"
+                android:layout_height="0dp" />
+
+        </ScrollView>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/addExpirationDateBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/dimen_12"
+            android:text="@string/add_expiration_date"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline2"
+            app:layout_constraintStart_toStartOf="@+id/guideline"/>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.05" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.95" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.3" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.3" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

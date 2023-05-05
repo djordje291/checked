@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Checked</string>
-    <string name="enter_invite_code">Enter invite code</string>
+    <string name="invite_code">Invite code</string>
     <string name="create_a_new_database">Create a new Database</string>
     <string name="sign_in_with_google">Sign in with Google</string>
     <string name="sign_in_with_facebook">Sign in with Facebook</string>
@@ -10,4 +10,35 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="connect">Connect</string>
+    <string name="title_activity_home">HomeActivity</string>
+    <string name="shopping">Shopping</string>
+    <string name="recipes">Recipes</string>
+    <string name="save">save</string>
+    <string name="share">Share</string>
+    <string name="logout">Logout</string>
+    <string name="products">Products</string>
+    <string name="stores">Stores</string>
+    <string name="not_in_the_database">Not in the database</string>
+    <string name="name">Name</string>
+    <string name="required">required*</string>
+    <string name="quantity">Quantity</string>
+    <string name="weight">Weight</string>
+    <string name="brand">Brand</string>
+    <string name="expiration_date">Expiration date</string>
+    <string name="expiration_dates">Expiration dates</string>
+    <string name="basic_foods">Basic foods</string>
+    <string name="dairy">Dairy</string>
+    <string name="drinks">Drinks</string>
+    <string name="meat">Meat</string>
+    <string name="sweets_and_snacks">Sweets and snacks</string>
+    <string name="frozen_foods">Frozen foods</string>
+    <string name="household">Household</string>
+    <string name="fruits_and_vegetables">Fruits and vegetables</string>
+    <string name="fill_in_all_the_fields">Fill in all the fields</string>
+    <string name="invalid_invite_code">Invalid invite code</string>
+    <string name="no_invite_code">No invite code</string>
+    <string name="search">Search</string>
+    <string name="categories">Categories</string>
+    <string name="add_expiration_date">Add Expiration Date</string>
 </resources>

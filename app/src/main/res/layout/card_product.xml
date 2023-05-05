@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="product"
+            type="com.djordjeratkovic.checked.model.Product" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/category"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/guidelineStart"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@id/guidelineEnd"
+            app:layout_constraintStart_toEndOf="@id/guidelineStart"
+            app:layout_constraintTop_toBottomOf="@id/category">
+
+            <ImageView
+                android:id="@+id/image"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/imageview_background"
+                app:layout_constraintEnd_toStartOf="@id/guideline30Inside"
+                app:layout_constraintStart_toEndOf="@id/guidelineStartInside"
+                app:layout_constraintBottom_toTopOf="@id/expirationDatesLabel"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/brand"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{product.brand}"
+                app:layout_constraintEnd_toStartOf="@id/guideline75Inside"
+                app:layout_constraintStart_toEndOf="@id/guideline30Inside"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{product.name}"
+                app:layout_constraintEnd_toStartOf="@id/guideline75Inside"
+                app:layout_constraintStart_toEndOf="@id/guideline30Inside"
+                app:layout_constraintTop_toBottomOf="@id/brand" />
+
+            <TextView
+                android:id="@+id/quantityLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/quantity"
+                app:layout_constraintEnd_toStartOf="@id/guidelineEndInside"
+                app:layout_constraintStart_toEndOf="@id/guideline75Inside"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/quantity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{Integer.toString(product.quantity)}"
+                app:layout_constraintEnd_toStartOf="@id/guidelineEndInside"
+                app:layout_constraintStart_toEndOf="@id/guideline75Inside"
+                app:layout_constraintTop_toBottomOf="@id/quantityLabel" />
+
+            <TextView
+                android:id="@+id/expirationDatesLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/expiration_dates"
+                app:drawableEndCompat="@drawable/ic_arrow_down"
+                app:layout_constraintEnd_toStartOf="@id/guideline75Inside"
+                app:layout_constraintStart_toEndOf="@id/guideline30Inside"
+                app:layout_constraintTop_toBottomOf="@id/quantity" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/expirationDatesRV"
+                android:visibility="gone"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/expirationDatesLabel"
+                app:layout_constraintEnd_toStartOf="@id/guidelineEndInside"
+                app:layout_constraintStart_toEndOf="@id/guidelineStartInside"/>
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guidelineStartInside"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.05" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline30Inside"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.30" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline75Inside"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.75" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guidelineEndInside"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.95" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineStart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.05" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineEnd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.95" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
