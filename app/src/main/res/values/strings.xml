@@ -41,4 +41,16 @@
     <string name="search">Search</string>
     <string name="categories">Categories</string>
     <string name="add_expiration_date">Add Expiration Date</string>
+    <string name="cant_go_lower">Can\'t go lower</string>
+    <string name="are_you_sure_you_want_to_delete">Are you sure you want to delete?</string>
+    <string name="are_you_sure_you_want_to_logout">Are you sure you want to logout?</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="empty">Empty</string>
+    <string name="share_text">Checked database invite code is</string>
+    <string name="price">Price</string>
+    <string name="currency">din</string>
+    <string name="update_product">Update Product</string>
+    <string name="new_product">New Product</string>
+    <string name="update">Update</string>
 </resources>

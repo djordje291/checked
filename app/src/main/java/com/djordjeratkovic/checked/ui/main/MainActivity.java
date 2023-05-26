@@ -1,18 +1,25 @@
 package com.djordjeratkovic.checked.ui.main;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.animation.Animation;
 
 import com.djordjeratkovic.checked.R;
 import com.djordjeratkovic.checked.databinding.ActivityMainBinding;
 import com.djordjeratkovic.checked.ui.home.HomeActivity;
 import com.djordjeratkovic.checked.util.Constants;
+
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -25,9 +32,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        Objects.requireNonNull(getSupportActionBar()).hide();
+
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         checkIfLoggedIn();
         setListeners();
+        setButtonColor();
+    }
+
+    private void setButtonColor() {
+        ValueAnimator colorAnimator = ValueAnimator.ofArgb(ContextCompat.getColor(this, R.color.orange),
+                ContextCompat.getColor(this, R.color.blue));
+        colorAnimator.setDuration(4000);
+        colorAnimator.setRepeatMode(ValueAnimator.REVERSE);
+        colorAnimator.setRepeatCount(Animation.INFINITE);
+        colorAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(@NonNull ValueAnimator valueAnimator) {
+                int animatedValue = (int) valueAnimator.getAnimatedValue();
+                binding.connect.setBackgroundColor(animatedValue);
+                binding.createNew.setBackgroundColor(animatedValue);
+            }
+        });
+        colorAnimator.start();
     }
 
 
@@ -44,8 +72,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             });
         } else if (view.getId() == R.id.connect) {
-            if (!binding.inviteCode.getText().toString().trim().isEmpty()) {
-                String databaseId = binding.inviteCode.getText().toString().trim();
+            String databaseId = binding.inviteCode.getText().toString().trim();
+            if (!databaseId.isEmpty()) {
                 viewModel.connectToDatabase(databaseId).observe(this, new Observer<Boolean>() {
                     @Override
                     public void onChanged(Boolean aBoolean) {
@@ -66,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void checkIfLoggedIn() {
         SharedPreferences sharedPreferences = getSharedPreferences(Constants.KEY_SHARED_PREFERENCES, MODE_PRIVATE);
-        if  (sharedPreferences.getString(Constants.KEY_DATABASE_ID, null) != null) {
+        if (sharedPreferences.getString(Constants.KEY_DATABASE_ID, null) != null) {
             changeIntent();
         }
     }
@@ -86,5 +114,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void changeIntent() {
         Intent intent = new Intent(MainActivity.this, HomeActivity.class);
         startActivity(intent);
+        finish();
     }
 }

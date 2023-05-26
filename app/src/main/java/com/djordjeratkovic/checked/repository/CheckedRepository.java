@@ -10,8 +10,11 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
+import com.djordjeratkovic.checked.model.Database;
 import com.djordjeratkovic.checked.model.Item;
 import com.djordjeratkovic.checked.model.BarcodeAPI;
 import com.djordjeratkovic.checked.model.Product;
@@ -35,7 +38,9 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -43,6 +48,7 @@ import retrofit2.Response;
 
 public class CheckedRepository {
 
+    private static final String TAG = "CHCKDR";
     private static CheckedRepository instance = null;
     private Application application = null;
 
@@ -54,6 +60,8 @@ public class CheckedRepository {
     private BarcodeAPIService barcodeAPIService;
 
     MutableLiveData<Product> product = new MutableLiveData<>();
+    List<Product> productsList = new ArrayList<>();
+
     MutableLiveData<BarcodeAPI> barcodeAPI = new MutableLiveData<>();
     MutableLiveData<List<Product>> products = new MutableLiveData<>();
 
@@ -98,9 +106,33 @@ public class CheckedRepository {
             @Override
             public void onSuccess(AuthResult authResult) {
                 id.setValue(authResult.getUser().getUid());
+                addDatabase(authResult.getUser().getUid());
             }
         });
         return id;
+    }
+
+    private void addDatabase(String databaseId) {
+        Database database = new Database();
+        database.setDatabaseId(databaseId);
+        databaseReference.whereEqualTo(Constants.KEY_DATABASE_ID, database.getDatabaseId()).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                if (queryDocumentSnapshots.isEmpty()) {
+                    databaseReference.add(database).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                        @Override
+                        public void onSuccess(DocumentReference documentReference) {
+                            Log.d(TAG, "onSuccess: added database");
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(TAG, "onFailure: failed to add database");
+                        }
+                    });
+                }
+            }
+        });
     }
 
     public MutableLiveData<String> signInWithGoogle() {
@@ -171,63 +203,101 @@ public class CheckedRepository {
         });
     }
 
-
-    //    public MutableLiveData<Product> getProductFromBarcode() {
-//        return product;
-//    }
     public MutableLiveData<BarcodeAPI> getProductFromBarcode() {
         return barcodeAPI;
     }
 
     public void addProduct(Product product) {
-        //TODO: iz nekog razloga ne stavlja databaseId
-        Log.d("STOTO", "getProducts: " + getDatabaseId());
         product.setDatabaseId(getDatabaseId());
         productReference.add(product).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
             public void onSuccess(DocumentReference documentReference) {
-
+                Log.d(TAG, "onSuccess: added product");
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-
+                Log.d(TAG, "onFailure: failed to add product");
             }
         });
     }
 
     public MutableLiveData<List<Product>> getProducts() {
-        //TODO: orderBy pa snapshot
-        List<Product> productsList = new ArrayList<>();
-        productReference.whereEqualTo(Constants.KEY_DATABASE_ID, getDatabaseId())
+        productReference
                 .orderBy(Constants.KEY_CATEGORY)
+                .orderBy(Constants.KEY_NAME)
+                .whereEqualTo(Constants.KEY_DATABASE_ID, getDatabaseId())
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                        Log.d(TAG, "onEvent: ITS CALLED");
                         if (error != null) {
                             return;
                         }
 
                         if (value != null && !value.isEmpty()) {
+                            if (!productsList.isEmpty()) {
+                                productsList.clear();
+                            }
                             for (DocumentSnapshot documentSnapshot : value.getDocuments()) {
                                 Product product = documentSnapshot.toObject(Product.class);
-                                product.setDocRef(documentSnapshot.getId());
+                                if (product != null) {
+                                    product.setDocRef(documentSnapshot.getId());
+                                }
                                 productsList.add(product);
                             }
+                            products.postValue(productsList);
+                        } else {
+                            if (!productsList.isEmpty()) {
+                                productsList.clear();
+                            }
+                            products.postValue(productsList);
                         }
-                        products.setValue(productsList);
                     }
                 });
+        products.setValue(productsList);
         return products;
     }
 
     private String getDatabaseId() {
-        //TODO: checkThis
         SharedPreferences sharedPreferences = application.getSharedPreferences(Constants.KEY_SHARED_PREFERENCES, MODE_PRIVATE);
-//        if  (sharedPreferences.getString(Constants.KEY_USER_ID, null) != null) {
-//            Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-//            startActivity(intent);
-//        }
         return sharedPreferences.getString(Constants.KEY_DATABASE_ID, null);
+    }
+
+    public void updateProduct(Product product) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put(Constants.KEY_WEIGHT, product.getWeight());
+        updates.put(Constants.KEY_IMAGE_URL, product.getImageUrl());
+        updates.put(Constants.KEY_BARCODE, product.getBarcode());
+        updates.put(Constants.KEY_BRAND, product.getBrand());
+        updates.put(Constants.KEY_EXPIRATION_DATES, product.getExpirationDates());
+        updates.put(Constants.KEY_NAME, product.getName());
+        updates.put(Constants.KEY_CATEGORY, product.getCategory());
+        updates.put(Constants.KEY_PRICE, product.getCategory());
+        productReference.document(product.getDocRef()).update(updates).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Log.d(TAG, "onSuccess: updated product");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "onFailure: failed to update product");
+            }
+        });
+    }
+
+    public void deleteProduct(Product product) {
+        productReference.document(product.getDocRef()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Log.d(TAG, "onSuccess: deleted product");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "onFailure: failed to delete product");
+            }
+        });
     }
 }

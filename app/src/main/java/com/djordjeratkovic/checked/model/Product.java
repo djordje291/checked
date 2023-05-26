@@ -16,6 +16,8 @@ public class Product {
     //meso i pakovano meso
     //voce i povrce
 
+    //TODO: maybe make low or medium or full
+
     @SerializedName("_id")
     private String barcode;
 
@@ -31,6 +33,8 @@ public class Product {
     @SerializedName("image_url")
     private String imageUrl;
 
+    private int price;
+
     private int category;
 
     private List<ExpirationDate> expirationDates;
@@ -42,7 +46,7 @@ public class Product {
     public Product() {
     }
 
-    public Product(String barcode, String weight, String brand, String name, String imageUrl, int category, List<ExpirationDate> expirationDates, String databaseId) {
+    public Product(String barcode, String weight, String brand, String name, String imageUrl, int category, List<ExpirationDate> expirationDates, String databaseId, int price) {
         this.barcode = barcode;
         this.weight = weight;
         this.brand = brand;
@@ -51,6 +55,7 @@ public class Product {
         this.category = category;
         this.expirationDates = expirationDates;
         this.databaseId = databaseId;
+        this.price = price;
     }
 
     public String getBarcode() {
@@ -125,6 +130,14 @@ public class Product {
         this.databaseId = databaseId;
     }
 
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
     public int getQuantity() {
        int i = 0;
        for (ExpirationDate expirationDate : expirationDates) {
@@ -141,6 +154,7 @@ public class Product {
                 ", brand='" + brand + '\'' +
                 ", name='" + name + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +
+                ", price=" + price +
                 ", category=" + category +
                 ", expirationDates=" + expirationDates +
                 ", docRef='" + docRef + '\'' +

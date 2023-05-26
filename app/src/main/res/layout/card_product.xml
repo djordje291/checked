@@ -7,17 +7,30 @@
         <variable
             name="product"
             type="com.djordjeratkovic.checked.model.Product" />
+        <variable
+            name="category"
+            type="String" />
+
+        <import type="android.view.View" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_marginEnd="@dimen/dimen_8"
+        android:layout_marginStart="@dimen/dimen_8"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/category"
-            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@{category}"
+            android:visibility="gone"
+            android:textSize="17sp"
+            android:fontFamily="@font/merienda_one"
+            android:layout_marginTop="@dimen/dimen_8"
+            android:paddingBottom="@dimen/dimen_8"
+            android:textColor="@color/orange"
             app:layout_constraintStart_toEndOf="@id/guidelineStart"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -25,25 +38,30 @@
             android:id="@+id/cl"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toStartOf="@id/guidelineEnd"
-            app:layout_constraintStart_toEndOf="@id/guidelineStart"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/category">
 
             <ImageView
                 android:id="@+id/image"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
+                android:layout_margin="@dimen/dimen_8"
                 android:background="@drawable/imageview_background"
+                android:visibility="@{product.imageUrl != null ? View.VISIBLE : View.GONE}"
+                app:layout_constraintBottom_toBottomOf="@id/expirationDatesLabel"
                 app:layout_constraintEnd_toStartOf="@id/guideline30Inside"
-                app:layout_constraintStart_toEndOf="@id/guidelineStartInside"
-                app:layout_constraintBottom_toTopOf="@id/expirationDatesLabel"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/brand"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dimen_8"
+                android:textSize="13sp"
                 android:text="@{product.brand}"
+                android:textColor="@color/orange"
                 app:layout_constraintEnd_toStartOf="@id/guideline75Inside"
                 app:layout_constraintStart_toEndOf="@id/guideline30Inside"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -52,7 +70,10 @@
                 android:id="@+id/name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:layout_marginTop="@dimen/dimen_8"
                 android:text="@{product.name}"
+                android:textColor="@color/blue"
                 app:layout_constraintEnd_toStartOf="@id/guideline75Inside"
                 app:layout_constraintStart_toEndOf="@id/guideline30Inside"
                 app:layout_constraintTop_toBottomOf="@id/brand" />
@@ -61,7 +82,10 @@
                 android:id="@+id/quantityLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dimen_8"
                 android:text="@string/quantity"
+                android:textSize="13sp"
+                android:textColor="@color/orange"
                 app:layout_constraintEnd_toStartOf="@id/guidelineEndInside"
                 app:layout_constraintStart_toEndOf="@id/guideline75Inside"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -70,7 +94,10 @@
                 android:id="@+id/quantity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:layout_marginTop="@dimen/dimen_8"
                 android:text="@{Integer.toString(product.quantity)}"
+                android:textColor="@color/blue"
                 app:layout_constraintEnd_toStartOf="@id/guidelineEndInside"
                 app:layout_constraintStart_toEndOf="@id/guideline75Inside"
                 app:layout_constraintTop_toBottomOf="@id/quantityLabel" />
@@ -80,19 +107,23 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/expiration_dates"
+                android:textColor="@color/orange"
+                android:layout_marginTop="@dimen/dimen_8"
+                android:paddingBottom="@dimen/dimen_8"
+                android:textSize="13sp"
                 app:drawableEndCompat="@drawable/ic_arrow_down"
                 app:layout_constraintEnd_toStartOf="@id/guideline75Inside"
                 app:layout_constraintStart_toEndOf="@id/guideline30Inside"
-                app:layout_constraintTop_toBottomOf="@id/quantity" />
+                app:layout_constraintTop_toBottomOf="@id/name" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/expirationDatesRV"
-                android:visibility="gone"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/expirationDatesLabel"
+                android:visibility="gone"
                 app:layout_constraintEnd_toStartOf="@id/guidelineEndInside"
-                app:layout_constraintStart_toEndOf="@id/guidelineStartInside"/>
+                app:layout_constraintStart_toEndOf="@id/guidelineStartInside"
+                app:layout_constraintTop_toBottomOf="@id/expirationDatesLabel" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guidelineStartInside"
@@ -137,6 +168,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.95" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

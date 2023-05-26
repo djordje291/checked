@@ -60,7 +60,7 @@ public class ScanActivity extends AppCompatActivity {
             @Override
             public void onChanged(BarcodeAPI barcodeAPI) {
                 if (barcodeAPI.getProduct() != null) {
-                    ProductDialog productDialog = new ProductDialog(barcodeAPI.getProduct(), codeScanner);
+                    ProductDialog productDialog = new ProductDialog(barcodeAPI.getProduct(), codeScanner, false);
                     productDialog.show(getSupportFragmentManager(), Constants.PRODUCT_DIALOG_TAG);
                 } else {
                     Toast.makeText(context, R.string.not_in_the_database, Toast.LENGTH_SHORT).show();

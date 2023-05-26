@@ -1,21 +1,31 @@
 package com.djordjeratkovic.checked.ui.home.ui.home.scan.dialog;
 
+import static android.view.inputmethod.EditorInfo.IME_ACTION_NEXT;
+
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.provider.MediaStore;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.budiyev.android.codescanner.CodeScanner;
@@ -24,6 +34,8 @@ import com.djordjeratkovic.checked.R;
 import com.djordjeratkovic.checked.databinding.DialogProductBinding;
 import com.djordjeratkovic.checked.model.ExpirationDate;
 import com.djordjeratkovic.checked.model.Product;
+import com.djordjeratkovic.checked.ui.home.ui.home.HomeAdapter;
+import com.djordjeratkovic.checked.util.CommonUtils;
 import com.djordjeratkovic.checked.util.Constants;
 
 import java.text.SimpleDateFormat;
@@ -31,8 +43,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class ProductDialog extends DialogFragment implements View.OnClickListener{
+public class ProductDialog extends DialogFragment implements View.OnClickListener, TextView.OnEditorActionListener {
     // error namesti da iskoci kad ti treba za edit text
+    //TODO: refresh homeFragment when added
+    //TODO: add for taking pictures of products, and adding it to storage
+    //TODO: maybe more prices for the same product, figure it out
 
     private DialogProductBinding binding;
 
@@ -49,9 +64,19 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
 
     private int category = -1;
 
-    public ProductDialog(Product product, CodeScanner codeScanner) {
+    private boolean isEdit;
+
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private ActivityResultLauncher<Uri> takePictureLauncher;
+    private Uri photoUri;
+
+    public ProductDialog(Product product, CodeScanner codeScanner, boolean isEdit) {
         this.product = product;
+        if (product != null && product.getExpirationDates() != null) {
+            this.expirationDates = product.getExpirationDates();
+        }
         this.codeScanner = codeScanner;
+        this.isEdit = isEdit;
     }
 
     @Override
@@ -59,6 +84,7 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NORMAL, R.style.AppTheme_FullScreenDialog);
         productDialogViewModel = new ViewModelProvider(this).get(ProductDialogViewModel.class);
+//        requestCamera();
     }
 
     @NonNull
@@ -81,12 +107,24 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
             codeScannerStart();
             dismiss();
         });
-        binding.toolbar.setTitle("New Product");
-        binding.toolbar.inflateMenu(R.menu.dialog_item);
+        if (isEdit) {
+            binding.toolbar.setTitle(getString(R.string.update_product));
+            binding.toolbar.inflateMenu(R.menu.dialog_item_update);
+        } else {
+            binding.toolbar.inflateMenu(R.menu.dialog_item);
+            binding.toolbar.setTitle(getString(R.string.new_product));
+        }
         binding.toolbar.setOnMenuItemClickListener(item -> {
-            if (addProduct()) {
-                codeScannerStart();
-                dismiss();
+            if (isEdit) {
+                if (updateProduct()) {
+                    //maybe get adapter and position to notify
+                    dismiss();
+                }
+            } else {
+                if (addProduct()) {
+                    codeScannerStart();
+                    dismiss();
+                }
             }
             return true;
         });
@@ -105,23 +143,20 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
         if (product != null) {
             bind();
         }
-        setExpirationDate();
+        if (product == null || product.getExpirationDates() == null) {
+            setExpirationDate();
+        }
+        setAdapter();
         setListeners();
+        if (isEdit) {
+            setupEdit();
+        }
 
     }
 
-    private void setListeners() {
-        binding.addExpirationDateBtn.setOnClickListener(this);
-        binding.categoryBtn1.setOnClickListener(this);
-        binding.categoryBtn2.setOnClickListener(this);
-        binding.categoryBtn3.setOnClickListener(this);
-        binding.categoryBtn4.setOnClickListener(this);
-        binding.categoryBtn5.setOnClickListener(this);
-        binding.categoryBtn6.setOnClickListener(this);
-        binding.categoryBtn7.setOnClickListener(this);
-        binding.categoryBtn8.setOnClickListener(this);
+    private void setupEdit() {
+        category = product.getCategory();
     }
-
 
     private void bind() {
         binding.setProduct(product);
@@ -133,6 +168,9 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
     private void setExpirationDate() {
         ExpirationDate expirationDate = new ExpirationDate(new Date(), 1);
         expirationDates.add(expirationDate);
+    }
+
+    private void setAdapter() {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         binding.expirationDateRV.setLayoutManager(layoutManager);
         adapter = new ProductDialogAdapter(expirationDates, getContext());
@@ -154,6 +192,7 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
         if (binding.brandEditText.getText().toString().trim().isEmpty() ||
                 binding.weightEditText.getText().toString().trim().isEmpty() ||
                 binding.nameEditText.getText().toString().trim().isEmpty() ||
+                binding.priceEditText.getText().toString().trim().isEmpty() ||
                 getCategory() == -1) {
             Toast.makeText(getContext(), R.string.fill_in_all_the_fields, Toast.LENGTH_SHORT).show();
             return false;
@@ -162,6 +201,7 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
                 product.setBrand(binding.brandEditText.getText().toString().trim());
                 product.setWeight(binding.weightEditText.getText().toString().trim());
                 product.setName(binding.nameEditText.getText().toString().trim());
+                product.setPrice(Integer.parseInt(binding.priceEditText.getText().toString().trim()));
                 product.setExpirationDates(expirationDates);
                 product.setCategory(getCategory());
             } else {
@@ -169,13 +209,32 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
                         binding.brandEditText.getText().toString().trim(),
                         binding.nameEditText.getText().toString().trim(),
                         null, getCategory(),
-                        expirationDates, null);
+                        expirationDates, null, Integer.parseInt(binding.priceEditText.getText().toString().trim()));
             }
             productDialogViewModel.addProduct(product);
             return true;
         }
     }
 
+    private boolean updateProduct() {
+        if (binding.brandEditText.getText().toString().trim().isEmpty() ||
+                binding.weightEditText.getText().toString().trim().isEmpty() ||
+                binding.nameEditText.getText().toString().trim().isEmpty() ||
+                binding.priceEditText.getText().toString().trim().isEmpty() ||
+                getCategory() == -1) {
+            Toast.makeText(getContext(), R.string.fill_in_all_the_fields, Toast.LENGTH_SHORT).show();
+            return false;
+        } else {
+            product.setBrand(binding.brandEditText.getText().toString().trim());
+            product.setWeight(binding.weightEditText.getText().toString().trim());
+            product.setName(binding.nameEditText.getText().toString().trim());
+            product.setPrice(Integer.parseInt(binding.priceEditText.getText().toString().trim()));
+            product.setExpirationDates(expirationDates);
+            product.setCategory(getCategory());
+            productDialogViewModel.updateProduct(product);
+            return true;
+        }
+    }
 
     private void codeScannerStart() {
         if (codeScanner != null) {
@@ -189,14 +248,20 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
 
     @Override
     public void onClick(View view) {
-        switch(view.getId()) {
+        switch (view.getId()) {
             case R.id.addExpirationDateBtn:
-            ExpirationDate expirationDate = new ExpirationDate(addDayToDate(
-                    expirationDates.get(expirationDates.size() - 1).getExpirationDate()),
-                    1);
-            expirationDates.add(expirationDate);
-            adapter.notifyItemInserted(expirationDates.size() - 1);
-            break;
+                ExpirationDate expirationDate = new ExpirationDate(addDayToDate(
+                        expirationDates.get(expirationDates.size() - 1).getExpirationDate()),
+                        1);
+                expirationDates.add(expirationDate);
+                adapter.notifyItemInserted(expirationDates.size() - 1);
+                break;
+            case R.id.image:
+//                dispatchTakePictureIntent();
+//                requestCamera();
+//                CommonUtils.requestCamera(getContext(), getActivity());
+//                registerForActivityResult(new ActivityResultContracts.TakePicture())
+                break;
             case R.id.categoryBtn1:
                 category = 1;
                 setRadioButtons(binding.categoryBtn1);
@@ -232,6 +297,18 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
         }
     }
 
+    @Override
+    public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+        if (i == IME_ACTION_NEXT) {
+            switch (textView.getId()) {
+                case R.id.weightEditText:
+                    binding.nameEditText.requestFocus();
+                    return true;
+            }
+        }
+        return false;
+    }
+
     private void setRadioButtons(RadioButton radioButton) {
         radioButton.setChecked(true);
         checkRadioButtons(radioButton, binding.categoryBtn1);
@@ -248,5 +325,57 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
         if (radioButton != radioButton2) {
             radioButton2.setChecked(false);
         }
+    }
+
+    private void setListeners() {
+        binding.addExpirationDateBtn.setOnClickListener(this);
+        binding.categoryBtn1.setOnClickListener(this);
+        binding.categoryBtn2.setOnClickListener(this);
+        binding.categoryBtn3.setOnClickListener(this);
+        binding.categoryBtn4.setOnClickListener(this);
+        binding.categoryBtn5.setOnClickListener(this);
+        binding.categoryBtn6.setOnClickListener(this);
+        binding.categoryBtn7.setOnClickListener(this);
+        binding.categoryBtn8.setOnClickListener(this);
+        binding.weightEditText.setOnEditorActionListener(this);
+
+        binding.image.setOnClickListener(this);
+    }
+
+    private void requestCamera() {
+        takePictureLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(),
+                new ActivityResultCallback<Boolean>() {
+                    @Override
+                    public void onActivityResult(Boolean isPhotoTaken) {
+                        if (isPhotoTaken) {
+                            // Photo was taken successfully, you can process the photo here
+                            // The photo can be accessed using the 'photoUri' variable
+                            // Process the photo here
+                        }
+                    }
+                });
+
+        // Start capturing the photo
+        dispatchTakePictureIntent();
+    }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            // Create a file to save the image
+            photoUri = createImageFile();
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+            takePictureLauncher.launch(photoUri);
+        }
+    }
+
+    private Uri createImageFile() {
+        // Create a file name for the image
+        // ...
+
+        // Create the file and return its URI
+        // ...
+
+        return photoUri;
     }
 }

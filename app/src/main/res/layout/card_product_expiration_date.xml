@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="expirationDate"
+            type="com.djordjeratkovic.checked.model.ExpirationDate" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:paddingBottom="@dimen/dimen_8"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/quantityLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_8"
+            android:text="@string/quantity"
+            android:textColor="@color/orange"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toStartOf="@id/expirationDateLabel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/minus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dimen_12"
+            android:background="@drawable/expiration_date_button_background"
+            android:padding="@dimen/dimen_4"
+            android:src="@drawable/ic_remove"
+            app:layout_constraintBottom_toBottomOf="@id/quantity"
+            app:layout_constraintEnd_toStartOf="@id/quantity"
+            app:layout_constraintTop_toTopOf="@id/quantity"
+            app:tint="@color/blue" />
+
+        <TextView
+            android:id="@+id/quantity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_20"
+            android:text="@{Integer.toString(expirationDate.quantity)}"
+            android:textSize="15sp"
+            android:textColor="@color/blue_light"
+            app:layout_constraintEnd_toEndOf="@id/quantityLabel"
+            app:layout_constraintStart_toStartOf="@id/quantityLabel"
+            app:layout_constraintTop_toBottomOf="@id/quantityLabel" />
+
+        <ImageButton
+            android:id="@+id/plus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dimen_12"
+            android:background="@drawable/expiration_date_button_background"
+            android:padding="@dimen/dimen_4"
+            android:src="@drawable/ic_add"
+            app:layout_constraintBottom_toBottomOf="@id/quantity"
+            app:layout_constraintStart_toEndOf="@id/quantity"
+            app:layout_constraintTop_toTopOf="@id/quantity"
+            app:tint="@color/blue" />
+
+        <TextView
+            android:id="@+id/expirationDateLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_8"
+            android:text="@string/expiration_date"
+            android:textColor="@color/orange"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/quantityLabel"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/expirationDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_20"
+            android:text="@{expirationDate.gatDateString()}"
+            android:textColor="@color/blue_light"
+            android:textSize="15sp"
+            app:layout_constraintEnd_toEndOf="@id/expirationDateLabel"
+            app:layout_constraintStart_toStartOf="@id/expirationDateLabel"
+            app:layout_constraintTop_toBottomOf="@id/expirationDateLabel" />
+
+        <ImageButton
+            android:id="@+id/deleteExpirationDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/delete_button_background"
+            android:padding="@dimen/dimen_4"
+            android:src="@drawable/ic_delete"
+            app:layout_constraintBottom_toBottomOf="@+id/expirationDate"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/expirationDate"
+            app:layout_constraintTop_toTopOf="@+id/expirationDate"
+            app:tint="@color/red" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

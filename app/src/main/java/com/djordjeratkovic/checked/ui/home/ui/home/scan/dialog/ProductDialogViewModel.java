@@ -22,4 +22,8 @@ public class ProductDialogViewModel extends AndroidViewModel {
     public void addProduct(Product product) {
         repository.addProduct(product);
     }
+
+    public void updateProduct(Product product) {
+        repository.updateProduct(product);
+    }
 }

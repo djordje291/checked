@@ -33,6 +33,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
+                android:maxLines="1"
                 android:inputType="number"
                 android:text="@{Integer.toString(expirationDate.quantity)}"
                 android:textSize="13sp" />

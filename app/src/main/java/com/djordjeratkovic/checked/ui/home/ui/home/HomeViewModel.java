@@ -28,4 +28,11 @@ public class HomeViewModel extends AndroidViewModel {
         return repository.getProducts();
     }
 
+    public void updateProduct(Product product) {
+        repository.updateProduct(product);
+    }
+
+    public void deleteProduct(Product product) {
+        repository.deleteProduct(product);
+    }
 }

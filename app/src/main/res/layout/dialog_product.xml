@@ -72,6 +72,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:maxLength="20"
+                android:maxLines="1"
+                android:inputType="text"
                 android:text="@{product.brand}"
                 android:textSize="13sp" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -101,6 +103,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:maxLength="20"
+                android:maxLines="1"
+                android:inputType="text"
                 android:text="@{product.weight}"
                 android:textSize="13sp" />
 
@@ -112,6 +116,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/dimen_8"
+            android:layout_marginEnd="@dimen/dimen_8"
             android:hint="@string/name"
             app:counterEnabled="true"
             app:counterMaxLength="30"
@@ -120,7 +125,7 @@
             app:errorIconDrawable="@drawable/ic_error"
             app:helperText="@string/required"
             app:helperTextTextColor="@color/red"
-            app:layout_constraintEnd_toStartOf="@id/guideline2"
+            app:layout_constraintEnd_toStartOf="@id/guideline6"
             app:layout_constraintStart_toEndOf="@id/guideline"
             app:layout_constraintTop_toBottomOf="@+id/guideline3">
 
@@ -129,8 +134,42 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:textSize="13sp"
+                android:maxLines="1"
+                android:inputType="text"
                 android:maxLength="50"
                 android:text="@{product.name}" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/price"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_8"
+            android:layout_marginStart="@dimen/dimen_8"
+            android:hint="@string/price"
+            app:counterEnabled="true"
+            app:counterMaxLength="6"
+            app:endIconMode="clear_text"
+            app:errorEnabled="true"
+            app:errorIconDrawable="@drawable/ic_error"
+            app:suffixText="@string/currency"
+            app:helperText="@string/required"
+            app:helperTextTextColor="@color/red"
+            app:layout_constraintEnd_toStartOf="@id/guideline2"
+            app:layout_constraintStart_toEndOf="@id/guideline6"
+            app:layout_constraintTop_toBottomOf="@+id/guideline3">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/priceEditText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:inputType="number"
+                android:maxLength="6"
+                android:maxLines="1"
+                android:text="@{Integer.toString(product.price)}"
+                android:textSize="13sp" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -152,6 +191,7 @@
             app:layout_constraintWidth_percent="0.2"
             app:layout_constraintHeight_percent="0.1"
             android:layout_marginTop="@dimen/dimen_8"
+            android:checked="@{product.category == 1 ? true : false}"
             android:background="@drawable/category_radio_button_background"
             android:button="@null"
             android:drawableTop="@drawable/ic_bottle_of_water"
@@ -174,6 +214,7 @@
             android:button="@null"
             android:drawableTop="@drawable/ic_bread"
             android:gravity="center"
+            android:checked="@{product.category == 2 ? true : false}"
             android:paddingTop="@dimen/dimen_8"
             android:text="@string/basic_foods"
             android:textColor="@drawable/category_radio_button_text"
@@ -194,6 +235,7 @@
             android:drawableTop="@drawable/ic_milk"
             android:gravity="center"
             android:paddingTop="@dimen/dimen_8"
+            android:checked="@{product.category == 3 ? true : false}"
             android:text="@string/dairy"
             android:textColor="@drawable/category_radio_button_text"
             android:textSize="11sp"
@@ -213,6 +255,7 @@
             android:drawableTop="@drawable/ic_steak"
             android:gravity="center"
             android:paddingTop="@dimen/dimen_8"
+            android:checked="@{product.category == 4 ? true : false}"
             android:text="@string/meat"
             android:textColor="@drawable/category_radio_button_text"
             android:textSize="11sp"
@@ -234,6 +277,7 @@
             android:gravity="center"
             android:paddingTop="@dimen/dimen_8"
             android:text="@string/fruits_and_vegetables"
+            android:checked="@{product.category == 5 ? true : false}"
             android:textColor="@drawable/category_radio_button_text"
             android:textSize="11sp"
             app:layout_constraintStart_toEndOf="@id/guideline"
@@ -250,6 +294,7 @@
             android:drawableTop="@drawable/ic_cookies"
             android:gravity="center"
             android:paddingTop="@dimen/dimen_8"
+            android:checked="@{product.category == 6 ? true : false}"
             android:text="@string/sweets_and_snacks"
             android:textColor="@drawable/category_radio_button_text"
             android:textSize="11sp"
@@ -269,6 +314,7 @@
             android:drawableTop="@drawable/ic_ice_cream_cone"
             android:gravity="center"
             android:paddingTop="@dimen/dimen_8"
+            android:checked="@{product.category == 7 ? true : false}"
             android:paddingStart="@dimen/dimen_4"
             android:paddingEnd="@dimen/dimen_4"
             android:text="@string/frozen_foods"
@@ -289,6 +335,7 @@
             android:background="@drawable/category_radio_button_background"
             android:button="@null"
             android:drawableTop="@drawable/ic_baby_bottle"
+            android:checked="@{product.category == 8 ? true : false}"
             android:gravity="center"
             android:paddingTop="@dimen/dimen_8"
             android:text="@string/household"
@@ -363,6 +410,12 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.3" />
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.6" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

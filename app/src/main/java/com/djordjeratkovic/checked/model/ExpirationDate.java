@@ -6,9 +6,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class ExpirationDate {
+    //TODO: add price here so you can have different prices for the same product
 
     private Date expirationDate;
     private int quantity;
+    private int price;
 
     public ExpirationDate() {
     }
@@ -32,6 +34,14 @@ public class ExpirationDate {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
     }
 
     public String gatDateString() {

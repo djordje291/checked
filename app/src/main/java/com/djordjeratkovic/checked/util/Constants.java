@@ -11,5 +11,12 @@ public class Constants {
     public static final String DATE_FORMAT = "dd/MM/yy";
     public static final String KEY_CATEGORY = "category";
     public static final String KEY_DATE_PICKER = "datePicker";
-
+    public static final String KEY_QUANTITY = "quantity";
+    public static final String KEY_WEIGHT = "weight";
+    public static final String KEY_BARCODE = "barcode";
+    public static final String KEY_BRAND = "brand";
+    public static final String KEY_NAME = "name";
+    public static final String KEY_IMAGE_URL = "imageUrl";
+    public static final String KEY_EXPIRATION_DATES = "expirationDates";
+    public static final String KEY_PRICE = "price";
 }
