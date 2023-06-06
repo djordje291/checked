@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BackgroundAndCategory {
-    //TODO: ili sve ovde se namesti ili da uzmes da vratis samo 1, 2, 3 ili 4 pa po tome setujes drawable
 
     private Drawable drawable;
     private Drawable first;
@@ -35,6 +34,7 @@ public class BackgroundAndCategory {
     }
 
     private void set() {
+        //TODO: index -1 when delete
         if (position != 0 && products.size() > 1 && position != products.size() - 1) {
             if (products.get(position).getCategory() == products.get(position - 1).getCategory() &&
                     products.get(position).getCategory() == products.get(position + 1).getCategory()) {

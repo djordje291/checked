@@ -2,9 +2,13 @@ package com.djordjeratkovic.checked.ui.home.ui.home.scan.dialog;
 
 import static android.view.inputmethod.EditorInfo.IME_ACTION_NEXT;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -13,11 +17,16 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,24 +47,24 @@ import com.djordjeratkovic.checked.ui.home.ui.home.HomeAdapter;
 import com.djordjeratkovic.checked.util.CommonUtils;
 import com.djordjeratkovic.checked.util.Constants;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class ProductDialog extends DialogFragment implements View.OnClickListener, TextView.OnEditorActionListener {
+    private static final String TAG = "OBOZE";
     // error namesti da iskoci kad ti treba za edit text
     //TODO: refresh homeFragment when added
     //TODO: add for taking pictures of products, and adding it to storage
-    //TODO: maybe more prices for the same product, figure it out
+    //https://www.youtube.com/watch?v=9XSlbZN1yFg&ab_channel=CodingZest
 
     private DialogProductBinding binding;
-
     private Product product;
-
     private ProductDialogViewModel productDialogViewModel;
     private CodeScanner codeScanner;
-
     private List<ExpirationDate> expirationDates = new ArrayList<>();
 
     private String lastDate;
@@ -70,13 +79,16 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
     private ActivityResultLauncher<Uri> takePictureLauncher;
     private Uri photoUri;
 
-    public ProductDialog(Product product, CodeScanner codeScanner, boolean isEdit) {
+    private Activity activity;
+
+    public ProductDialog(Product product, CodeScanner codeScanner, boolean isEdit, Activity activity) {
         this.product = product;
         if (product != null && product.getExpirationDates() != null) {
             this.expirationDates = product.getExpirationDates();
         }
         this.codeScanner = codeScanner;
         this.isEdit = isEdit;
+        this.activity = activity;
     }
 
     @Override
@@ -84,7 +96,15 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NORMAL, R.style.AppTheme_FullScreenDialog);
         productDialogViewModel = new ViewModelProvider(this).get(ProductDialogViewModel.class);
-//        requestCamera();
+
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CAMERA}, REQUEST_IMAGE_CAPTURE);
+            Log.d(TAG, "onCreate: fail");
+            //TODO: request camera permission
+        } else {
+            Log.d(TAG, "onCreate: success");
+            requestCamera();
+        }
     }
 
     @NonNull
@@ -142,6 +162,8 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
         }
         if (product != null) {
             bind();
+        } else {
+            binding.lottieImage.setVisibility(View.VISIBLE);
         }
         if (product == null || product.getExpirationDates() == null) {
             setExpirationDate();
@@ -156,13 +178,21 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
 
     private void setupEdit() {
         category = product.getCategory();
+        bind();
+        bindPrice(Integer.toString(product.getExpirationDates().get(0).getPrice()));
     }
 
     private void bind() {
         binding.setProduct(product);
         if (product.getImageUrl() != null) {
             Glide.with(this).load(product.getImageUrl()).into(binding.image);
+        } else {
+            binding.lottieImage.setVisibility(View.VISIBLE);
         }
+    }
+
+    private void bindPrice(String price) {
+        binding.setPrice(price);
     }
 
     private void setExpirationDate() {
@@ -197,11 +227,11 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
             Toast.makeText(getContext(), R.string.fill_in_all_the_fields, Toast.LENGTH_SHORT).show();
             return false;
         } else {
+            setPrices(Integer.parseInt(binding.priceEditText.getText().toString().trim()));
             if (product != null) {
                 product.setBrand(binding.brandEditText.getText().toString().trim());
                 product.setWeight(binding.weightEditText.getText().toString().trim());
                 product.setName(binding.nameEditText.getText().toString().trim());
-                product.setPrice(Integer.parseInt(binding.priceEditText.getText().toString().trim()));
                 product.setExpirationDates(expirationDates);
                 product.setCategory(getCategory());
             } else {
@@ -209,7 +239,7 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
                         binding.brandEditText.getText().toString().trim(),
                         binding.nameEditText.getText().toString().trim(),
                         null, getCategory(),
-                        expirationDates, null, Integer.parseInt(binding.priceEditText.getText().toString().trim()));
+                        expirationDates, null, false);
             }
             productDialogViewModel.addProduct(product);
             return true;
@@ -228,22 +258,12 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
             product.setBrand(binding.brandEditText.getText().toString().trim());
             product.setWeight(binding.weightEditText.getText().toString().trim());
             product.setName(binding.nameEditText.getText().toString().trim());
-            product.setPrice(Integer.parseInt(binding.priceEditText.getText().toString().trim()));
+            setPrices(Integer.parseInt(binding.priceEditText.getText().toString().trim()));
             product.setExpirationDates(expirationDates);
             product.setCategory(getCategory());
             productDialogViewModel.updateProduct(product);
             return true;
         }
-    }
-
-    private void codeScannerStart() {
-        if (codeScanner != null) {
-            codeScanner.startPreview();
-        }
-    }
-
-    private int getCategory() {
-        return category;
     }
 
     @Override
@@ -256,11 +276,21 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
                 expirationDates.add(expirationDate);
                 adapter.notifyItemInserted(expirationDates.size() - 1);
                 break;
-            case R.id.image:
-//                dispatchTakePictureIntent();
+            //maybe image and lottie image
+            case R.id.lottieImage:
+
+                Log.d(TAG, "onClick: " + isCameraAvailable());
 //                requestCamera();
+//                registerForActivityResult(new ActivityResultContracts.TakePicture(), new ActivityResultCallback<Boolean>() {
+//                    @Override
+//                    public void onActivityResult(Boolean result) {
+//
+//                    }
+//                });
+                dispatchTakePictureIntent();
 //                CommonUtils.requestCamera(getContext(), getActivity());
 //                registerForActivityResult(new ActivityResultContracts.TakePicture())
+
                 break;
             case R.id.categoryBtn1:
                 category = 1;
@@ -297,16 +327,119 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
         }
     }
 
-    @Override
-    public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-        if (i == IME_ACTION_NEXT) {
-            switch (textView.getId()) {
-                case R.id.weightEditText:
-                    binding.nameEditText.requestFocus();
-                    return true;
-            }
+
+    private void requestCamera() {
+        takePictureLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(),
+                new ActivityResultCallback<Boolean>() {
+                    @Override
+                    public void onActivityResult(Boolean isPhotoTaken) {
+                        if (isPhotoTaken) {
+                            Log.d(TAG, "onActivityResult: yesPhoto");
+                            // Photo was taken successfully, you can process the photo here
+                            // The photo can be accessed using the 'photoUri' variable
+                            // Process the photo here
+                        } else {
+                            Log.d(TAG, "onActivityResult: noPhoto");
+                        }
+                    }
+                });
+
+        // Start capturing the photo
+        dispatchTakePictureIntent();
+    }
+
+
+    private void dispatchTakePictureIntent() {
+        Log.d(TAG, "dispatchTakePictureIntent: method called");
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(activity.getPackageManager()) != null) {
+            // Create a file to save the image
+            Log.d(TAG, "dispatchTakePictureIntent: inside");
+            photoUri = createImageFile();
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+            takePictureLauncher.launch(photoUri);
         }
-        return false;
+    }
+
+    private Uri createImageFile() {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+
+        // Get the directory where the image will be saved
+        File storageDir = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+        // Create the image file
+        File imageFile = null;
+        try {
+            imageFile = File.createTempFile(
+                    imageFileName,  // Prefix for the file name
+                    ".jpg",         // Suffix for the file name
+                    storageDir      // Directory to save the file
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Return the file URI
+        return imageFile != null ? Uri.fromFile(imageFile) : null;
+    }
+
+    private boolean isCameraAvailable() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, createImageFileUri());
+        return takePictureIntent.resolveActivity(activity.getPackageManager()) != null;
+    }
+
+//    private Uri createImageFileUri() {
+//        // Create a file name for the image
+//        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+//        String imageFileName = "JPEG_" + timeStamp + "_";
+//        File storageDir = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+//        File imageFile;
+//        try {
+//            imageFile = File.createTempFile(
+//                    imageFileName,
+//                    ".jpg",
+//                    storageDir
+//            );
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return null;
+//        }
+//
+//        // Get the file URI using FileProvider to ensure it's accessible by other apps
+//        return FileProvider.getUriForFile(activity, "com.djordjeratkovic.checked.fileprovider", imageFile);
+//    }
+
+    private void setPrices(int price) {
+        for (ExpirationDate expirationDate : expirationDates) {
+            expirationDate.setPrice(price);
+        }
+    }
+
+    private void codeScannerStart() {
+        if (codeScanner != null) {
+            codeScanner.startPreview();
+        }
+    }
+
+    private int getCategory() {
+        return category;
+    }
+
+    private void setListeners() {
+        binding.addExpirationDateBtn.setOnClickListener(this);
+        binding.categoryBtn1.setOnClickListener(this);
+        binding.categoryBtn2.setOnClickListener(this);
+        binding.categoryBtn3.setOnClickListener(this);
+        binding.categoryBtn4.setOnClickListener(this);
+        binding.categoryBtn5.setOnClickListener(this);
+        binding.categoryBtn6.setOnClickListener(this);
+        binding.categoryBtn7.setOnClickListener(this);
+        binding.categoryBtn8.setOnClickListener(this);
+        binding.weightEditText.setOnEditorActionListener(this);
+
+        binding.lottieImage.setOnClickListener(this);
     }
 
     private void setRadioButtons(RadioButton radioButton) {
@@ -327,55 +460,15 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
         }
     }
 
-    private void setListeners() {
-        binding.addExpirationDateBtn.setOnClickListener(this);
-        binding.categoryBtn1.setOnClickListener(this);
-        binding.categoryBtn2.setOnClickListener(this);
-        binding.categoryBtn3.setOnClickListener(this);
-        binding.categoryBtn4.setOnClickListener(this);
-        binding.categoryBtn5.setOnClickListener(this);
-        binding.categoryBtn6.setOnClickListener(this);
-        binding.categoryBtn7.setOnClickListener(this);
-        binding.categoryBtn8.setOnClickListener(this);
-        binding.weightEditText.setOnEditorActionListener(this);
-
-        binding.image.setOnClickListener(this);
-    }
-
-    private void requestCamera() {
-        takePictureLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(),
-                new ActivityResultCallback<Boolean>() {
-                    @Override
-                    public void onActivityResult(Boolean isPhotoTaken) {
-                        if (isPhotoTaken) {
-                            // Photo was taken successfully, you can process the photo here
-                            // The photo can be accessed using the 'photoUri' variable
-                            // Process the photo here
-                        }
-                    }
-                });
-
-        // Start capturing the photo
-        dispatchTakePictureIntent();
-    }
-
-    private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-            // Create a file to save the image
-            photoUri = createImageFile();
-            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
-            takePictureLauncher.launch(photoUri);
+    @Override
+    public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+        if (i == IME_ACTION_NEXT) {
+            switch (textView.getId()) {
+                case R.id.weightEditText:
+                    binding.nameEditText.requestFocus();
+                    return true;
+            }
         }
-    }
-
-    private Uri createImageFile() {
-        // Create a file name for the image
-        // ...
-
-        // Create the file and return its URI
-        // ...
-
-        return photoUri;
+        return false;
     }
 }

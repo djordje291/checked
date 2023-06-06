@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -20,6 +21,8 @@ import com.djordjeratkovic.checked.model.Product;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class ExpirationDateAdapter extends RecyclerView.Adapter<ExpirationDateAdapter.ViewHolder> {
@@ -52,6 +55,7 @@ public class ExpirationDateAdapter extends RecyclerView.Adapter<ExpirationDateAd
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ExpirationDate expirationDate = expirationDates.get(position);
         holder.bind(expirationDate);
+        checkDate(expirationDate, holder);
         holder.binding.deleteExpirationDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -109,6 +113,25 @@ public class ExpirationDateAdapter extends RecyclerView.Adapter<ExpirationDateAd
     @Override
     public int getItemCount() {
         return expirationDates.size();
+    }
+
+    private void checkDate(ExpirationDate expirationDate, ViewHolder holder) {
+        Calendar week = Calendar.getInstance();
+        week.add(Calendar.DAY_OF_MONTH, 7);
+        Calendar threeDays = Calendar.getInstance();
+        threeDays.add(Calendar.DAY_OF_MONTH, 3);
+        Calendar date = Calendar.getInstance();
+        date.setTime(expirationDate.getExpirationDate());
+        if (date.before(threeDays)){
+            //red
+            holder.binding.expirationDate.setTextColor(ContextCompat.getColor(context, R.color.red));
+        } else if (date.before(week)) {
+            //orange
+            holder.binding.expirationDate.setTextColor(ContextCompat.getColor(context, R.color.bright_orange));
+        } else {
+            //green?
+            holder.binding.expirationDate.setTextColor(ContextCompat.getColor(context, R.color.blue_light));
+        }
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

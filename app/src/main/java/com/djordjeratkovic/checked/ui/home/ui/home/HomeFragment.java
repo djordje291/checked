@@ -93,7 +93,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Item
                 setAnimations(binding.fabManual.getVisibility() == View.VISIBLE);
                 break;
             case R.id.fabManual:
-                ProductDialog productDialog = new ProductDialog(null, null, false);
+                ProductDialog productDialog = new ProductDialog(null, null, false, activity);
                 //TODO: check this
                 productDialog.show(getParentFragmentManager(), Constants.PRODUCT_DIALOG_TAG);
                 break;
@@ -183,7 +183,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Item
     @Override
     public void onItemEdit(int position) {
         refreshAdapter(position);
-        ProductDialog productDialog = new ProductDialog(productsList.get(position), null, true);
+        ProductDialog productDialog = new ProductDialog(productsList.get(position), null, true, activity);
         productDialog.show(getParentFragmentManager(), Constants.PRODUCT_DIALOG_TAG);
     }
 

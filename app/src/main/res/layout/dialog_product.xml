@@ -8,6 +8,9 @@
         <variable
             name="product"
             type="com.djordjeratkovic.checked.model.Product" />
+        <variable
+            name="price"
+            type="java.lang.String" />
     </data>
 
 
@@ -47,6 +50,21 @@
             app:layout_constraintEnd_toStartOf="@+id/guideline4"
             app:layout_constraintStart_toEndOf="@id/guideline"
             app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottieImage"
+            android:visibility="gone"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="false"
+            android:layout_marginTop="@dimen/dimen_8"
+            android:layout_marginEnd="@dimen/dimen_8"
+            app:lottie_rawRes="@raw/add_image"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@+id/guideline3"
+            app:layout_constraintEnd_toStartOf="@+id/guideline4"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/appBarLayout"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/brand"
@@ -168,7 +186,7 @@
                 android:inputType="number"
                 android:maxLength="6"
                 android:maxLines="1"
-                android:text="@{Integer.toString(product.price)}"
+                android:text="@{price}"
                 android:textSize="13sp" />
 
         </com.google.android.material.textfield.TextInputLayout>

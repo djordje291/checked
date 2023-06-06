@@ -53,4 +53,9 @@
     <string name="update_product">Update Product</string>
     <string name="new_product">New Product</string>
     <string name="update">Update</string>
+    <string name="additional_information">Additional information</string>
+    <string name="low">low</string>
+    <string name="full">full</string>
+    <string name="cannot_be_0">Cannot be 0</string>
+    <string name="cannot_be_empty">Cannot be empty</string>
 </resources>

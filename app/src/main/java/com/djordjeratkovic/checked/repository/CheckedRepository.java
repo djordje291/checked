@@ -208,6 +208,7 @@ public class CheckedRepository {
     }
 
     public void addProduct(Product product) {
+        //TODO: check first if there is that product and if there is then update it
         product.setDatabaseId(getDatabaseId());
         productReference.add(product).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
@@ -232,6 +233,8 @@ public class CheckedRepository {
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                         Log.d(TAG, "onEvent: ITS CALLED");
                         if (error != null) {
+                            Log.d(TAG, error.toString());
+
                             return;
                         }
 
@@ -274,6 +277,7 @@ public class CheckedRepository {
         updates.put(Constants.KEY_NAME, product.getName());
         updates.put(Constants.KEY_CATEGORY, product.getCategory());
         updates.put(Constants.KEY_PRICE, product.getCategory());
+        updates.put(Constants.KEY_IS_LOW, product.isLow());
         productReference.document(product.getDocRef()).update(updates).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {

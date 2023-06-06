@@ -2,9 +2,13 @@ package com.djordjeratkovic.checked.ui.home.ui.home;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.CompoundButton;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
@@ -24,7 +28,9 @@ import java.util.List;
 
 public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> implements ItemTouchHelperDelete {
 
-    //TODO: set full cl on click open, expiration dates to additional information and first card will be prices
+    //TODO: add lottie anims for no images and in dialog, and add 3sek delay for different cards
+    //TODO: add option to take photo of product
+    //TODO: kada je low ili expiration date orange or red make the name orange or red
 
     private List<Product> products;
     private Context context;
@@ -32,6 +38,9 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> im
     private HomeViewModel homeViewModel;
 
     private List<Product> save;
+
+    Animation dropdown;
+    Animation slideUpScale;
 
     public HomeAdapter(Context context, List<Product> products, HomeViewModel homeViewModel) {
         this.context = context;
@@ -44,6 +53,10 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> im
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         CardProductBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()
         ), R.layout.card_product, parent, false);
+
+        dropdown = AnimationUtils.loadAnimation(context.getApplicationContext(),  R.anim.dropdown);
+        slideUpScale = AnimationUtils.loadAnimation(context.getApplicationContext(),  R.anim.slide_up_scale);
+
         return new ViewHolder(binding);
     }
 
@@ -58,12 +71,26 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> im
 
         if (product.getImageUrl() != null) {
             Glide.with(context).load(product.getImageUrl()).into(holder.binding.image);
+            holder.binding.lottieImage.setVisibility(View.GONE);
+        } else {
+            holder.binding.lottieImage.setVisibility(View.VISIBLE);
+            holder.binding.lottieImage.pauseAnimation();
+            holder.binding.lottieImage.setFrame((int) (Math.random() * 149));
+
         }
 
-        holder.binding.expirationDatesLabel.setOnClickListener(new View.OnClickListener() {
+        holder.binding.cl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 switchRV(holder.binding);
+            }
+        });
+        holder.binding.fullLow.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                //TODO: nesto ovde nece, nece xml
+                product.setLow(!b);
+                homeViewModel.updateProduct(product);
             }
         });
     }
@@ -75,26 +102,23 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> im
 
     private void switchRV(CardProductBinding binding) {
         if (binding.expirationDatesRV.getVisibility() == View.VISIBLE) {
+            binding.expirationDatesRV.startAnimation(slideUpScale);
             binding.expirationDatesRV.setVisibility(View.GONE);
         } else {
+            binding.expirationDatesRV.startAnimation(dropdown);
             binding.expirationDatesRV.setVisibility(View.VISIBLE);
         }
     }
 
     private void setBackgroundAndCategory(ViewHolder holder, int position) {
         BackgroundAndCategory backgroundAndCategory =  new BackgroundAndCategory(position, products, context);
-
         holder.binding.cl.setBackground(backgroundAndCategory.getDrawable());
-        if (position != 0) {
-            if (products.get(position).getCategory() != products.get(position - 1).getCategory()) {
-                holder.binding.category.setVisibility(View.VISIBLE);
-            }
-        } else {
+        if (backgroundAndCategory.isB()) {
             holder.binding.category.setVisibility(View.VISIBLE);
+        } else {
+            holder.binding.category.setVisibility(View.GONE);
         }
-//        if (backgroundAndCategory.isB()) {
-//            holder.binding.category.setVisibility(View.VISIBLE);
-//        }
+
     }
 
     private void setAdapter(CardProductBinding binding, Product product, int position) {

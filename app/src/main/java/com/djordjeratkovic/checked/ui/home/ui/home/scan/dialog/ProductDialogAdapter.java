@@ -78,12 +78,13 @@ public class ProductDialogAdapter extends RecyclerView.Adapter<ProductDialogAdap
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if (charSequence != null && !TextUtils.isEmpty(charSequence)) {
                     if (!String.valueOf(charSequence).equals("0")) {
+                        holder.binding.quantity.setError(null);
                         expirationDate.setQuantity(Integer.parseInt(charSequence.toString()));
                     } else {
-                        //TODO: make maybe toast for not 0
+                        holder.binding.quantity.setError(context.getString(R.string.cannot_be_0));
                     }
                 }else {
-                    //TODO: maybe make toast for not empty
+                    holder.binding.quantity.setError(context.getString(R.string.cannot_be_empty));
                 }
             }
 

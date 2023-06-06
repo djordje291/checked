@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SwipeToDeleteAndEditCallback extends ItemTouchHelper.Callback {
-    //TODO: moras pasujes listu producta i da vidis koji od 4 drawable backgrounds da stavis onlu, first, middle i last
-    // takodje moraces da izracunas da oduzme naslov ako bude bio vidljiv
 
     private Context context;
     private ItemTouchHelperDelete delete;
@@ -77,9 +75,6 @@ public class SwipeToDeleteAndEditCallback extends ItemTouchHelper.Callback {
     @Override
     public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
         if (viewHolder instanceof HomeAdapter.ViewHolder) {
-//            ConstraintLayout itemView = viewHolder.itemView.findViewById(R.id.cl);
-//            recyclerView.getChildAdapterPosition(viewHolder.itemView);
-            //TODO: icons left to set and radius for background
 
             View item = viewHolder.itemView.findViewById(R.id.cl);
             View itemView = viewHolder.itemView;
