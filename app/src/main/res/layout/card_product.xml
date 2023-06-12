@@ -57,6 +57,19 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/lottieLoadingImage"
+                android:visibility="gone"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                app:lottie_rawRes="@raw/loading_image"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="@id/additionalInformation"
+                app:layout_constraintEnd_toStartOf="@id/guideline30Inside"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/lottieImage"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -119,19 +132,15 @@
 
             <ToggleButton
                 android:id="@+id/fullLow"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:checked="@{product.isLow}"
-                android:layout_centerVertical="true"
-                android:background="@drawable/full_low"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:textOff="@string/low"
-                android:textOn="@string/full"
-                app:layout_constraintBottom_toTopOf="@id/additionalInformation"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/quantity"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:checked="@{product.hasLow}"
+                android:visibility="gone"
+                android:textOff="@string/full"
+                android:textOn="@string/low"
+                app:layout_constraintEnd_toStartOf="@id/guidelineEndInside"
+                app:layout_constraintStart_toEndOf="@id/guidelineStartInside"
+                app:layout_constraintTop_toBottomOf="@id/expirationDatesRV" />
 
             <TextView
                 android:id="@+id/additionalInformation"

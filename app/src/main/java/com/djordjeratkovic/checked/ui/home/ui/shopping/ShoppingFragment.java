@@ -24,8 +24,12 @@ public class ShoppingFragment extends Fragment implements View.OnClickListener {
         binding = FragmentShoppingBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        binding.productsBtn.setOnClickListener(this);
-        binding.storesBtn.setOnClickListener(this);
+        setListeners();
+        setAdapters();
+        setObservers();
+
+        setMenu();
+
 
         return root;
     }
@@ -43,6 +47,36 @@ public class ShoppingFragment extends Fragment implements View.OnClickListener {
                 break;
             case R.id.storesBtn:
                 break;
+            case R.id.fabAdd:
+                if (isStores()) {
+                    //stores dialog
+                } else {
+                    //item dialog
+                }
+                break;
         }
+    }
+
+    private void setObservers() {
+
+    }
+
+    private void setAdapters() {
+
+    }
+
+    private void setListeners() {
+        binding.productsBtn.setOnClickListener(this);
+        binding.storesBtn.setOnClickListener(this);
+        binding.fabAdd.setOnClickListener(this);
+    }
+
+    private void setMenu() {
+
+
+    }
+
+    private boolean isStores() {
+        return binding.storesBtn.isActivated();
     }
 }

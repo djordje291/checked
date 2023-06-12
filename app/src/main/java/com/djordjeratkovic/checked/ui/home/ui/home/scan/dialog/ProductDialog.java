@@ -2,13 +2,8 @@ package com.djordjeratkovic.checked.ui.home.ui.home.scan.dialog;
 
 import static android.view.inputmethod.EditorInfo.IME_ACTION_NEXT;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -17,23 +12,18 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,7 +33,6 @@ import com.djordjeratkovic.checked.R;
 import com.djordjeratkovic.checked.databinding.DialogProductBinding;
 import com.djordjeratkovic.checked.model.ExpirationDate;
 import com.djordjeratkovic.checked.model.Product;
-import com.djordjeratkovic.checked.ui.home.ui.home.HomeAdapter;
 import com.djordjeratkovic.checked.util.CommonUtils;
 import com.djordjeratkovic.checked.util.Constants;
 
@@ -58,8 +47,9 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
     private static final String TAG = "OBOZE";
     // error namesti da iskoci kad ti treba za edit text
     //TODO: refresh homeFragment when added
-    //TODO: add for taking pictures of products, and adding it to storage
-    //https://www.youtube.com/watch?v=9XSlbZN1yFg&ab_channel=CodingZest
+    //TODO: make imageUri null, and when picture taken make the file, and also create imageUrl when file created
+    //TODO: delete old picture if in storage, and shrink the size of the new picture
+    //TODO: loading image not working
 
     private DialogProductBinding binding;
     private Product product;
@@ -78,6 +68,7 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private ActivityResultLauncher<Uri> takePictureLauncher;
     private Uri photoUri;
+    private Uri imageUri;
 
     private Activity activity;
 
@@ -97,14 +88,7 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
         setStyle(DialogFragment.STYLE_NORMAL, R.style.AppTheme_FullScreenDialog);
         productDialogViewModel = new ViewModelProvider(this).get(ProductDialogViewModel.class);
 
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CAMERA}, REQUEST_IMAGE_CAPTURE);
-            Log.d(TAG, "onCreate: fail");
-            //TODO: request camera permission
-        } else {
-            Log.d(TAG, "onCreate: success");
-            requestCamera();
-        }
+        registerPictureLauncher();
     }
 
     @NonNull
@@ -117,6 +101,21 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         binding = DialogProductBinding.inflate(getLayoutInflater());
+
+        if (product != null) {
+            bind();
+        } else {
+            binding.lottieImage.setVisibility(View.VISIBLE);
+        }
+        if (product == null || product.getExpirationDates() == null) {
+            setExpirationDate();
+        }
+        setAdapter();
+        setListeners();
+        if (isEdit) {
+            setupEdit();
+        }
+
         return binding.getRoot();
     }
 
@@ -131,8 +130,8 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
             binding.toolbar.setTitle(getString(R.string.update_product));
             binding.toolbar.inflateMenu(R.menu.dialog_item_update);
         } else {
-            binding.toolbar.inflateMenu(R.menu.dialog_item);
             binding.toolbar.setTitle(getString(R.string.new_product));
+            binding.toolbar.inflateMenu(R.menu.dialog_item);
         }
         binding.toolbar.setOnMenuItemClickListener(item -> {
             if (isEdit) {
@@ -140,10 +139,16 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
                     //maybe get adapter and position to notify
                     dismiss();
                 }
+                if (imageUri != null) {
+                    Log.d(TAG, "onViewCreated: " + imageUri.toString() + isImageTaken());
+                }
             } else {
                 if (addProduct()) {
                     codeScannerStart();
                     dismiss();
+                }
+                if (imageUri != null) {
+                    Log.d(TAG, "onViewCreated: " + imageUri.toString() + isImageTaken());
                 }
             }
             return true;
@@ -160,34 +165,48 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
             dialog.getWindow().setLayout(width, height);
             dialog.getWindow().setWindowAnimations(R.style.AppTheme_Slide);
         }
-        if (product != null) {
-            bind();
-        } else {
-            binding.lottieImage.setVisibility(View.VISIBLE);
-        }
-        if (product == null || product.getExpirationDates() == null) {
-            setExpirationDate();
-        }
-        setAdapter();
-        setListeners();
-        if (isEdit) {
-            setupEdit();
-        }
+//        if (product != null) {
+//            bind();
+//        } else {
+//            binding.lottieImage.setVisibility(View.VISIBLE);
+//        }
+//        if (product == null || product.getExpirationDates() == null) {
+//            setExpirationDate();
+//        }
+//        setAdapter();
+//        setListeners();
+//        if (isEdit) {
+//            setupEdit();
+//        }
 
     }
 
     private void setupEdit() {
         category = product.getCategory();
         bind();
-        bindPrice(Integer.toString(product.getExpirationDates().get(0).getPrice()));
+        //maybe -1
+        bindPrice(Integer.toString(product.getExpirationDates().get(product.getExpirationDates().size() - 1).getPrice()));
     }
 
     private void bind() {
         binding.setProduct(product);
         if (product.getImageUrl() != null) {
+            if (CommonUtils.isItStorage(product.getImageUrl())) {
+                Glide.with(this)
+                        .load(productDialogViewModel.getStorageReference(product.getImageUrl()))
+                        .addListener(CommonUtils.imageLoadingListener(binding.lottieLoadingImage))
+                        .into(binding.image);
+            } else {
+                Glide.with(this)
+                        .load(product.getImageUrl())
+                        .addListener(CommonUtils.imageLoadingListener(binding.lottieLoadingImage))
+                        .into(binding.image);
+            }
             Glide.with(this).load(product.getImageUrl()).into(binding.image);
+            binding.lottieImage.setVisibility(View.GONE);
         } else {
             binding.lottieImage.setVisibility(View.VISIBLE);
+            binding.lottieLoadingImage.setVisibility(View.GONE);
         }
     }
 
@@ -196,7 +215,7 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
     }
 
     private void setExpirationDate() {
-        ExpirationDate expirationDate = new ExpirationDate(new Date(), 1);
+        ExpirationDate expirationDate = new ExpirationDate(addDayToDate(new Date()), 1);
         expirationDates.add(expirationDate);
     }
 
@@ -234,6 +253,7 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
                 product.setName(binding.nameEditText.getText().toString().trim());
                 product.setExpirationDates(expirationDates);
                 product.setCategory(getCategory());
+                product.setHasLow(false);
             } else {
                 product = new Product(null, binding.weightEditText.getText().toString().trim(),
                         binding.brandEditText.getText().toString().trim(),
@@ -241,9 +261,18 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
                         null, getCategory(),
                         expirationDates, null, false);
             }
-            productDialogViewModel.addProduct(product);
+            if (imageUri != null) {
+                //TODO: Check if there is file image
+                product.setImageUrl("gs://checked-7b32c.appspot.com/" + imageUri.getLastPathSegment());
+            }
+            productDialogViewModel.addProduct(product, imageUri);
             return true;
         }
+    }
+
+    private boolean isImageTaken() {
+        File imageFile = new File(imageUri.getPath());
+        return imageFile.exists();
     }
 
     private boolean updateProduct() {
@@ -261,7 +290,11 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
             setPrices(Integer.parseInt(binding.priceEditText.getText().toString().trim()));
             product.setExpirationDates(expirationDates);
             product.setCategory(getCategory());
-            productDialogViewModel.updateProduct(product);
+            if (imageUri != null) {
+                //TODO: Check if there is file image
+                product.setImageUrl("gs://checked-7b32c.appspot.com/" + imageUri.getLastPathSegment());
+            }
+            productDialogViewModel.updateProduct(product, imageUri);
             return true;
         }
     }
@@ -276,21 +309,9 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
                 expirationDates.add(expirationDate);
                 adapter.notifyItemInserted(expirationDates.size() - 1);
                 break;
-            //maybe image and lottie image
+            case R.id.image:
             case R.id.lottieImage:
-
-                Log.d(TAG, "onClick: " + isCameraAvailable());
-//                requestCamera();
-//                registerForActivityResult(new ActivityResultContracts.TakePicture(), new ActivityResultCallback<Boolean>() {
-//                    @Override
-//                    public void onActivityResult(Boolean result) {
-//
-//                    }
-//                });
-                dispatchTakePictureIntent();
-//                CommonUtils.requestCamera(getContext(), getActivity());
-//                registerForActivityResult(new ActivityResultContracts.TakePicture())
-
+                checkCameraPermissionAndOpenCamera();
                 break;
             case R.id.categoryBtn1:
                 category = 1;
@@ -327,43 +348,9 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
         }
     }
 
-
-    private void requestCamera() {
-        takePictureLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(),
-                new ActivityResultCallback<Boolean>() {
-                    @Override
-                    public void onActivityResult(Boolean isPhotoTaken) {
-                        if (isPhotoTaken) {
-                            Log.d(TAG, "onActivityResult: yesPhoto");
-                            // Photo was taken successfully, you can process the photo here
-                            // The photo can be accessed using the 'photoUri' variable
-                            // Process the photo here
-                        } else {
-                            Log.d(TAG, "onActivityResult: noPhoto");
-                        }
-                    }
-                });
-
-        // Start capturing the photo
-        dispatchTakePictureIntent();
-    }
-
-
-    private void dispatchTakePictureIntent() {
-        Log.d(TAG, "dispatchTakePictureIntent: method called");
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(activity.getPackageManager()) != null) {
-            // Create a file to save the image
-            Log.d(TAG, "dispatchTakePictureIntent: inside");
-            photoUri = createImageFile();
-            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
-            takePictureLauncher.launch(photoUri);
-        }
-    }
-
     private Uri createImageFile() {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
+        String imageFileName = "JPG_" + timeStamp + "_" + CommonUtils.getDatabaseId(activity.getApplication());
 
         // Get the directory where the image will be saved
         File storageDir = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
@@ -384,36 +371,50 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
         return imageFile != null ? Uri.fromFile(imageFile) : null;
     }
 
-    private boolean isCameraAvailable() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, createImageFileUri());
-        return takePictureIntent.resolveActivity(activity.getPackageManager()) != null;
+    private Uri createImageUri() {
+        //add database id to the name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File imageFile = new File(activity.getApplicationContext().getFilesDir(), imageFileName);
+        return FileProvider.getUriForFile(
+                activity.getApplicationContext(),
+                "com.djordjeratkovic.checked.fileProvider",
+                imageFile
+        );
     }
 
-//    private Uri createImageFileUri() {
-//        // Create a file name for the image
-//        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-//        String imageFileName = "JPEG_" + timeStamp + "_";
-//        File storageDir = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-//        File imageFile;
-//        try {
-//            imageFile = File.createTempFile(
-//                    imageFileName,
-//                    ".jpg",
-//                    storageDir
-//            );
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return null;
-//        }
-//
-//        // Get the file URI using FileProvider to ensure it's accessible by other apps
-//        return FileProvider.getUriForFile(activity, "com.djordjeratkovic.checked.fileprovider", imageFile);
-//    }
+    private void registerPictureLauncher() {
+        takePictureLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(), new ActivityResultCallback<Boolean>() {
+            @Override
+            public void onActivityResult(Boolean result) {
+                if (result) {
+                    binding.image.setImageURI(null);
+                    binding.image.setImageURI(imageUri);
+                    binding.lottieImage.setVisibility(View.GONE);
+                    Toast.makeText(activity, "picture taken", Toast.LENGTH_SHORT).show();
+                } else {
+                    //maybe get glide uri photo
+                    binding.image.setImageURI(null);
+                    binding.lottieImage.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+    }
+
+    private void checkCameraPermissionAndOpenCamera() {
+        //TODO: check if you delete app and say first no what happens
+        if (CommonUtils.requestCamera(activity)) {
+            imageUri = createImageUri();
+            takePictureLauncher.launch(imageUri);
+        }
+    }
+
 
     private void setPrices(int price) {
         for (ExpirationDate expirationDate : expirationDates) {
-            expirationDate.setPrice(price);
+            if (expirationDate.getPrice() == 0) {
+                expirationDate.setPrice(price);
+            }
         }
     }
 
@@ -440,6 +441,7 @@ public class ProductDialog extends DialogFragment implements View.OnClickListene
         binding.weightEditText.setOnEditorActionListener(this);
 
         binding.lottieImage.setOnClickListener(this);
+        binding.image.setOnClickListener(this);
     }
 
     private void setRadioButtons(RadioButton radioButton) {

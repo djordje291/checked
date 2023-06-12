@@ -2,7 +2,6 @@ package com.djordjeratkovic.checked.util;
 
 import android.os.Handler;
 import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.airbnb.lottie.LottieAnimationView;
@@ -11,8 +10,6 @@ import com.google.android.material.progressindicator.CircularProgressIndicator;
 import java.util.List;
 
 public class Sleeper {
-
-    //TODO: DEPRICATED?
 
     private TextView emptyTV;
     private CircularProgressIndicator loading;

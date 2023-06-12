@@ -1,20 +1,15 @@
 package com.djordjeratkovic.checked.repository;
 
-import static android.content.Context.MODE_PRIVATE;
-
 import android.app.Application;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 
 import com.djordjeratkovic.checked.model.Database;
+import com.djordjeratkovic.checked.model.ExpirationDate;
 import com.djordjeratkovic.checked.model.Item;
 import com.djordjeratkovic.checked.model.BarcodeAPI;
 import com.djordjeratkovic.checked.model.Product;
@@ -22,20 +17,25 @@ import com.djordjeratkovic.checked.repository.network.BarcodeAPIClient;
 import com.djordjeratkovic.checked.repository.network.BarcodeAPIClient2;
 import com.djordjeratkovic.checked.repository.network.BarcodeAPIService;
 import com.djordjeratkovic.checked.repository.network.BarcodeAPIService2;
-import com.djordjeratkovic.checked.ui.home.HomeActivity;
-import com.djordjeratkovic.checked.ui.main.MainActivity;
+import com.djordjeratkovic.checked.util.CommonUtils;
 import com.djordjeratkovic.checked.util.Constants;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,6 +56,7 @@ public class CheckedRepository {
     private FirebaseFirestore db;
     private CollectionReference databaseReference;
     private CollectionReference productReference;
+    private StorageReference storageReference;
 
     private BarcodeAPIService barcodeAPIService;
 
@@ -66,10 +67,11 @@ public class CheckedRepository {
     MutableLiveData<List<Product>> products = new MutableLiveData<>();
 
     private CheckedRepository() {
-        firebaseAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
-        databaseReference = db.collection(Constants.KEY_DATABASE_REFERENCE);
-        productReference = db.collection(Constants.KEY_PRODUCT_REFERENCE);
+        this.firebaseAuth = FirebaseAuth.getInstance();
+        this.db = FirebaseFirestore.getInstance();
+        this.databaseReference = db.collection(Constants.KEY_DATABASE_REFERENCE);
+        this.productReference = db.collection(Constants.KEY_PRODUCT_REFERENCE);
+        this.storageReference = FirebaseStorage.getInstance().getReference();
     }
 
     public static CheckedRepository getInstance() {
@@ -207,27 +209,11 @@ public class CheckedRepository {
         return barcodeAPI;
     }
 
-    public void addProduct(Product product) {
-        //TODO: check first if there is that product and if there is then update it
-        product.setDatabaseId(getDatabaseId());
-        productReference.add(product).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-            @Override
-            public void onSuccess(DocumentReference documentReference) {
-                Log.d(TAG, "onSuccess: added product");
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d(TAG, "onFailure: failed to add product");
-            }
-        });
-    }
-
     public MutableLiveData<List<Product>> getProducts() {
         productReference
                 .orderBy(Constants.KEY_CATEGORY)
                 .orderBy(Constants.KEY_NAME)
-                .whereEqualTo(Constants.KEY_DATABASE_ID, getDatabaseId())
+                .whereEqualTo(Constants.KEY_DATABASE_ID, CommonUtils.getDatabaseId(application))
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -245,6 +231,7 @@ public class CheckedRepository {
                             for (DocumentSnapshot documentSnapshot : value.getDocuments()) {
                                 Product product = documentSnapshot.toObject(Product.class);
                                 if (product != null) {
+                                    Log.d(TAG, "onEvent: " + product.isHasLow());
                                     product.setDocRef(documentSnapshot.getId());
                                 }
                                 productsList.add(product);
@@ -262,26 +249,79 @@ public class CheckedRepository {
         return products;
     }
 
-    private String getDatabaseId() {
-        SharedPreferences sharedPreferences = application.getSharedPreferences(Constants.KEY_SHARED_PREFERENCES, MODE_PRIVATE);
-        return sharedPreferences.getString(Constants.KEY_DATABASE_ID, null);
+//    private String getDatabaseId() {
+//        SharedPreferences sharedPreferences = application.getSharedPreferences(Constants.KEY_SHARED_PREFERENCES, MODE_PRIVATE);
+//        return sharedPreferences.getString(Constants.KEY_DATABASE_ID, null);
+//    }
+
+    private void addProduct(Product product, Uri imageUri) {
+        product.setDatabaseId(CommonUtils.getDatabaseId(application));
+        productReference.add(product).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                Log.d(TAG, "onSuccess: added product");
+                if (imageUri != null) {
+                    uploadImageFile(product, imageUri);
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "onFailure: failed to add product");
+            }
+        });
     }
 
-    public void updateProduct(Product product) {
+    public void checkIfThereIsAProduct(Product product, Uri imageUri) {
+        Query query;
+        List<ExpirationDate> tempList = new ArrayList<>();
+        if (product.getBarcode() != null) {
+            query = productReference
+                    .where(Filter.or(
+                            Filter.equalTo(Constants.KEY_BARCODE, product.getBarcode())
+                            , Filter.and(Filter.equalTo(Constants.KEY_BRAND, product.getBrand()),
+                                    Filter.equalTo(Constants.KEY_NAME, product.getName()))));
+        } else {
+            query = productReference.whereEqualTo(Constants.KEY_NAME, product.getName());
+        }
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.getResult() != null && !task.getResult().isEmpty()) {
+                    for (DocumentSnapshot documentSnapshot : task.getResult().getDocuments()) {
+                        Product oldProduct = documentSnapshot.toObject(Product.class);
+                        if (oldProduct != null) {
+                            product.setDocRef(documentSnapshot.getId());
+                            tempList.addAll(product.getExpirationDates());
+                            product.setExpirationDates(oldProduct.getExpirationDates());
+                            product.getExpirationDates().addAll(tempList);
+                            updateProduct(product, imageUri);
+                        }
+                    }
+                } else {
+                    addProduct(product, imageUri);
+                }
+            }
+        });
+    }
+
+    public void updateProduct(Product product, Uri imageUri) {
         Map<String, Object> updates = new HashMap<>();
         updates.put(Constants.KEY_WEIGHT, product.getWeight());
         updates.put(Constants.KEY_IMAGE_URL, product.getImageUrl());
         updates.put(Constants.KEY_BARCODE, product.getBarcode());
         updates.put(Constants.KEY_BRAND, product.getBrand());
-        updates.put(Constants.KEY_EXPIRATION_DATES, product.getExpirationDates());
         updates.put(Constants.KEY_NAME, product.getName());
+        updates.put(Constants.KEY_EXPIRATION_DATES, product.getExpirationDates());
         updates.put(Constants.KEY_CATEGORY, product.getCategory());
-        updates.put(Constants.KEY_PRICE, product.getCategory());
-        updates.put(Constants.KEY_IS_LOW, product.isLow());
+        updates.put(Constants.KEY_HAS_LOW, product.isHasLow());
         productReference.document(product.getDocRef()).update(updates).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
                 Log.d(TAG, "onSuccess: updated product");
+                if (imageUri != null) {
+                    uploadImageFile(product, imageUri);
+                }
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -303,5 +343,32 @@ public class CheckedRepository {
                 Log.d(TAG, "onFailure: failed to delete product");
             }
         });
+    }
+
+    private void uploadImageFile(Product product, Uri imageUri) {
+        storageReference.child(CommonUtils.removePrefix(product.getImageUrl())).putFile(imageUri).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Map<String, Object> updates = new HashMap<>();
+                updates.put(Constants.KEY_IMAGE_URL, null);
+                if (product.getDocRef() != null) {
+                    productReference.document(product.getDocRef()).update(updates).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    public StorageReference getStorageReference(String uri) {
+        return storageReference.getStorage().getReferenceFromUrl(uri);
     }
 }

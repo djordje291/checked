@@ -19,5 +19,6 @@ public class Constants {
     public static final String KEY_IMAGE_URL = "imageUrl";
     public static final String KEY_EXPIRATION_DATES = "expirationDates";
     public static final String KEY_PRICE = "price";
-    public static final String KEY_IS_LOW = "isLow";
+    public static final String KEY_HAS_LOW = "hasLow";
+    public static final String KEY_STORAGE_DIR = "gs://checked-7b32c.appspot.com/";
 }

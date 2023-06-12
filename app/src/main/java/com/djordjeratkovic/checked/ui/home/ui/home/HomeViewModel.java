@@ -1,6 +1,7 @@
 package com.djordjeratkovic.checked.ui.home.ui.home;
 
 import android.app.Application;
+import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -10,6 +11,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.djordjeratkovic.checked.model.Product;
 import com.djordjeratkovic.checked.repository.CheckedRepository;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.List;
 
@@ -28,11 +30,15 @@ public class HomeViewModel extends AndroidViewModel {
         return repository.getProducts();
     }
 
-    public void updateProduct(Product product) {
-        repository.updateProduct(product);
+    public void updateProduct(Product product, Uri imageUri) {
+        repository.updateProduct(product, imageUri);
     }
 
     public void deleteProduct(Product product) {
         repository.deleteProduct(product);
+    }
+
+    public StorageReference getStorageReference(String url) {
+        return repository.getStorageReference(url);
     }
 }

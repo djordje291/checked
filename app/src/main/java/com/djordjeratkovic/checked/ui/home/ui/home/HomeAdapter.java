@@ -21,6 +21,7 @@ import com.djordjeratkovic.checked.databinding.CardProductBinding;
 import com.djordjeratkovic.checked.model.Product;
 import com.djordjeratkovic.checked.model.ProductCategory;
 import com.djordjeratkovic.checked.util.BackgroundAndCategory;
+import com.djordjeratkovic.checked.util.CommonUtils;
 import com.djordjeratkovic.checked.util.ItemTouchHelperDelete;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -29,8 +30,10 @@ import java.util.List;
 public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> implements ItemTouchHelperDelete {
 
     //TODO: add lottie anims for no images and in dialog, and add 3sek delay for different cards
-    //TODO: add option to take photo of product
-    //TODO: kada je low ili expiration date orange or red make the name orange or red
+    //TODO: maybe load when your close to the position of the card so you dont load all at once, the images
+    //TODO: make a list of open cards so if its updated all get open
+    //TODO: create a button so you can add a product to the shopping list
+    // napravi listu i kad se updejtuje da proveris koji je smao updejtovan i da ga dodas na glavnu listu i samo njemu da se refresuje position
 
     private List<Product> products;
     private Context context;
@@ -54,8 +57,8 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> im
         CardProductBinding binding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext()
         ), R.layout.card_product, parent, false);
 
-        dropdown = AnimationUtils.loadAnimation(context.getApplicationContext(),  R.anim.dropdown);
-        slideUpScale = AnimationUtils.loadAnimation(context.getApplicationContext(),  R.anim.slide_up_scale);
+        dropdown = AnimationUtils.loadAnimation(context.getApplicationContext(), R.anim.dropdown);
+        slideUpScale = AnimationUtils.loadAnimation(context.getApplicationContext(), R.anim.slide_up_scale);
 
         return new ViewHolder(binding);
     }
@@ -68,9 +71,18 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> im
         setAdapter(holder.binding, product, position);
 
         setBackgroundAndCategory(holder, position);
+        CommonUtils.setProductTextColorAndSize(context,product.getExpirationDates(),holder.binding.name, 15);
 
         if (product.getImageUrl() != null) {
-            Glide.with(context).load(product.getImageUrl()).into(holder.binding.image);
+            if (CommonUtils.isItStorage(product.getImageUrl())) {
+                Glide.with(context)
+                        .load(homeViewModel.getStorageReference(product.getImageUrl()))
+                        .addListener(CommonUtils.imageLoadingListener(holder.binding.lottieLoadingImage))
+                        .into(holder.binding.image);
+            } else {
+                Glide.with(context).load(product.getImageUrl()).into(holder.binding.image);
+            }
+
             holder.binding.lottieImage.setVisibility(View.GONE);
         } else {
             holder.binding.lottieImage.setVisibility(View.VISIBLE);
@@ -89,8 +101,10 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> im
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 //TODO: nesto ovde nece, nece xml
-                product.setLow(!b);
-                homeViewModel.updateProduct(product);
+                product.setHasLow(b);
+                Log.d("DIOSMIHO", "onCheckedChanged: " + b + product.isHasLow());
+                homeViewModel.updateProduct(product, null);
+//                holder.binding.fullLow.setChecked(b);
             }
         });
     }
@@ -104,14 +118,18 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> im
         if (binding.expirationDatesRV.getVisibility() == View.VISIBLE) {
             binding.expirationDatesRV.startAnimation(slideUpScale);
             binding.expirationDatesRV.setVisibility(View.GONE);
+            //TODO: maybe on end animation for expiration dates start animation for fullLow
+            binding.fullLow.setVisibility(View.GONE);
         } else {
             binding.expirationDatesRV.startAnimation(dropdown);
             binding.expirationDatesRV.setVisibility(View.VISIBLE);
+            //TODO: maybe on end animation for expiration dates start animation for fullLow
+            binding.fullLow.setVisibility(View.VISIBLE);
         }
     }
 
     private void setBackgroundAndCategory(ViewHolder holder, int position) {
-        BackgroundAndCategory backgroundAndCategory =  new BackgroundAndCategory(position, products, context);
+        BackgroundAndCategory backgroundAndCategory = new BackgroundAndCategory(position, products, context);
         holder.binding.cl.setBackground(backgroundAndCategory.getDrawable());
         if (backgroundAndCategory.isB()) {
             holder.binding.category.setVisibility(View.VISIBLE);
@@ -172,6 +190,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> im
 
         public void bind(Product product) {
             binding.setProduct(product);
+            Log.d("DIOSMIHO", "bind: " + product.isHasLow());
             binding.setCategory(new ProductCategory(product.getCategory(), context).getCategory());
             binding.executePendingBindings();
         }

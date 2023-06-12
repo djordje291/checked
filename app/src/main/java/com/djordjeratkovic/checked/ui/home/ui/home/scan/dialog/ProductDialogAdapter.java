@@ -1,10 +1,10 @@
 package com.djordjeratkovic.checked.ui.home.ui.home.scan.dialog;
 
 import android.content.Context;
+import android.os.Parcel;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,10 +18,12 @@ import com.djordjeratkovic.checked.R;
 import com.djordjeratkovic.checked.databinding.ExpirationDateCardBinding;
 import com.djordjeratkovic.checked.model.ExpirationDate;
 import com.djordjeratkovic.checked.util.Constants;
+import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -53,10 +55,9 @@ public class ProductDialogAdapter extends RecyclerView.Adapter<ProductDialogAdap
         holder.binding.expirationDateEditText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO: set constraints not for less than today
                 MaterialDatePicker<Long> materialDatePicker = MaterialDatePicker.Builder.datePicker()
-                        .setSelection(expirationDate.getExpirationDate().getTime()).build();
-//                        .setCalendarConstraints(constraintsBuilderRange.build()).build();
+                        .setSelection(expirationDate.getExpirationDate().getTime())
+                        .setCalendarConstraints(getConstraints()).build();
                 materialDatePicker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener<Long>() {
                     @Override
                     public void onPositiveButtonClick(Long selection) {
@@ -108,7 +109,29 @@ public class ProductDialogAdapter extends RecyclerView.Adapter<ProductDialogAdap
     }
 
 
-    private void showDatePicker(ExpirationDate expirationDate) {
+    private CalendarConstraints getConstraints() {
+        Calendar calendar = Calendar.getInstance();
+        long today = calendar.getTimeInMillis();
+
+        CalendarConstraints.Builder constraintsBuilder = new CalendarConstraints.Builder();
+        constraintsBuilder.setValidator(new CalendarConstraints.DateValidator() {
+            @Override
+            public int describeContents() {
+                return 0;
+            }
+
+            @Override
+            public void writeToParcel(@NonNull Parcel parcel, int i) {
+
+            }
+
+            @Override
+            public boolean isValid(long date) {
+                // Disable dates that are before today
+                return date >= today;
+            }
+        });
+        return constraintsBuilder.build();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

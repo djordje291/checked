@@ -2,7 +2,6 @@ package com.djordjeratkovic.checked.model;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.HashMap;
 import java.util.List;
 
 public class Product {
@@ -39,12 +38,12 @@ public class Product {
 
     private String databaseId;
 
-    private boolean isLow;
+    private boolean hasLow;
 
     public Product() {
     }
 
-    public Product(String barcode, String weight, String brand, String name, String imageUrl, int category, List<ExpirationDate> expirationDates, String databaseId, boolean isLow) {
+    public Product(String barcode, String weight, String brand, String name, String imageUrl, int category, List<ExpirationDate> expirationDates, String databaseId, boolean hasLow) {
         this.barcode = barcode;
         this.weight = weight;
         this.brand = brand;
@@ -53,7 +52,7 @@ public class Product {
         this.category = category;
         this.expirationDates = expirationDates;
         this.databaseId = databaseId;
-        this.isLow = isLow;
+        this.hasLow = hasLow;
     }
 
     public String getBarcode() {
@@ -128,12 +127,12 @@ public class Product {
         this.databaseId = databaseId;
     }
 
-    public boolean isLow() {
-        return isLow;
+    public boolean isHasLow() {
+        return hasLow;
     }
 
-    public void setLow(boolean low) {
-        isLow = low;
+    public void setHasLow(boolean hasLow) {
+        this.hasLow = hasLow;
     }
 
     public int getQuantity() {
@@ -156,7 +155,7 @@ public class Product {
                 ", expirationDates=" + expirationDates +
                 ", docRef='" + docRef + '\'' +
                 ", databaseId='" + databaseId + '\'' +
-                ", isLow=" + isLow +
+                ", hasLow=" + hasLow +
                 '}';
     }
 }

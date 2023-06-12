@@ -39,10 +39,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.UnaryOperator;
 
 public class HomeFragment extends Fragment implements View.OnClickListener, ItemTouchHelperEdit, SearchView.OnQueryTextListener {
-    //TODO: dodaj na product barcode ako je tako skenirano i ako skeniras da doda na taj proizvod da ne pravi novi
-    // ako nema barcode neka pretrazi po brandu i imenu pa ako se totalno podudara da opet updejtuje umesto aduje
+
+    //TODO: make a method that can be called from anywhere where you can add a product to the productsList and also delete, in other words replace
 
     private FragmentHomeBinding binding;
     private HomeViewModel homeViewModel;
@@ -127,6 +128,29 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Item
 //                    if (binding.productsRV.getAdapter() != null) {
 //                        binding.productsRV.getAdapter().notifyDataSetChanged();
 //                    }
+                refreshAdapter(null);
+            }
+        });
+        homeViewModel.getProducts().observe(getViewLifecycleOwner(), products -> {
+            if (!products.isEmpty()) {
+//                if (!productsList.isEmpty()) {
+//                    productsList.clear();
+//                }
+                binding.empty.setVisibility(View.GONE);
+                binding.lottieAnim.setVisibility(View.GONE);
+
+                for (Product product : products) {
+                    if (!productsList.contains(product)) {
+
+                    }
+                }
+
+
+            } else {
+                if (!productsList.isEmpty()) {
+                    productsList.clear();
+                }
+                new Sleeper(binding.empty, binding.loading, products, productsList, binding.lottieAnim).start();
                 refreshAdapter(null);
             }
         });
@@ -310,5 +334,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Item
         stringBuilder.append(": \n");
         stringBuilder.append(getDatabaseId());
         return stringBuilder.toString();
+    }
+
+    public void replaceProduct(Product oldProduct, Product newProduct) {
+        productsList.set(productsList.indexOf(oldProduct), newProduct);
     }
 }
