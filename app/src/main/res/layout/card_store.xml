@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="store"
+            type="com.djordjeratkovic.checked.model.Store" />
+        <variable
+            name="sum"
+            type="Integer" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:background="@drawable/store_card_background"
+        android:layout_margin="@dimen/dimen_20"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="0dp"
+            tools:text="Univerexport"
+            android:text="@{store.name.toUpperCase()}"
+            android:layout_marginTop="@dimen/dimen_14"
+            android:textSize="23sp"
+            android:fontFamily="@font/merienda_one"
+            android:textColor="@color/white"
+            app:layout_constraintStart_toStartOf="@id/g3"
+            app:layout_constraintEnd_toEndOf="@id/g4"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/count"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/count"
+            tools:text="23 items"
+            android:layout_width="0dp"
+            android:layout_marginTop="@dimen/dimen_14"
+            android:layout_marginBottom="@dimen/dimen_14"
+            android:fontFamily="@font/merienda_one"
+            android:text="@{Integer.toString(store.shoppingItemList.size()) + ' ' + @string/items}"
+            android:textColor="@color/white"
+            android:textSize="17sp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/name"
+            app:layout_constraintStart_toStartOf="@id/g3"
+            app:layout_constraintEnd_toEndOf="@id/g4"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <TextView
+            android:id="@+id/sum"
+            android:layout_width="0dp"
+            android:gravity="center"
+            tools:text="2578.89din"
+            android:textColor="@color/white"
+            android:text="@{Integer.toString(sum) + @string/currency}"
+            android:textSize="15sp"
+            android:fontFamily="@font/merienda_one"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="@id/g2"
+            app:layout_constraintStart_toStartOf="@id/g4"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/g1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.05"/>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/g2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.95"/>
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/g3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.10"/>
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/g4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.70"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

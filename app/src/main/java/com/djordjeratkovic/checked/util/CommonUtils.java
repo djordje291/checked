@@ -20,6 +20,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
@@ -98,13 +99,23 @@ public class CommonUtils {
                 view.setTextColor(ContextCompat.getColor(context, R.color.purple));
                 view.setTextSize(textSize + 2);
                 break;
-            } else if (expirationDate.getExpirationDate().before(threeDays.getTime())){
+            } else if (expirationDate.getExpirationDate().before(threeDays.getTime())) {
                 view.setTextColor(ContextCompat.getColor(context, R.color.red));
                 view.setTextSize(textSize + 1);
             } else if (expirationDate.getExpirationDate().before(week.getTime())
-            && view.getTextSize() != textSize + 1) {
+                    && view.getTextSize() != textSize + 1) {
                 view.setTextColor(ContextCompat.getColor(context, R.color.orange));
                 view.setTextSize(textSize);
+            }
+        }
+    }
+
+    public static void refreshAdapter(RecyclerView.Adapter adapter, Integer position) {
+        if (adapter != null) {
+            if (position == null) {
+                adapter.notifyDataSetChanged();
+            } else {
+                adapter.notifyItemChanged(position);
             }
         }
     }

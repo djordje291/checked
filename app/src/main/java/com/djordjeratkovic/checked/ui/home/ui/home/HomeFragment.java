@@ -131,29 +131,29 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Item
                 refreshAdapter(null);
             }
         });
-        homeViewModel.getProducts().observe(getViewLifecycleOwner(), products -> {
-            if (!products.isEmpty()) {
+//        homeViewModel.getProducts().observe(getViewLifecycleOwner(), products -> {
+//            if (!products.isEmpty()) {
+////                if (!productsList.isEmpty()) {
+////                    productsList.clear();
+////                }
+//                binding.empty.setVisibility(View.GONE);
+//                binding.lottieAnim.setVisibility(View.GONE);
+//
+//                for (Product product : products) {
+//                    if (!productsList.contains(product)) {
+//
+//                    }
+//                }
+//
+//
+//            } else {
 //                if (!productsList.isEmpty()) {
 //                    productsList.clear();
 //                }
-                binding.empty.setVisibility(View.GONE);
-                binding.lottieAnim.setVisibility(View.GONE);
-
-                for (Product product : products) {
-                    if (!productsList.contains(product)) {
-
-                    }
-                }
-
-
-            } else {
-                if (!productsList.isEmpty()) {
-                    productsList.clear();
-                }
-                new Sleeper(binding.empty, binding.loading, products, productsList, binding.lottieAnim).start();
-                refreshAdapter(null);
-            }
-        });
+//                new Sleeper(binding.empty, binding.loading, products, productsList, binding.lottieAnim).start();
+//                refreshAdapter(null);
+//            }
+//        });
     }
 
     private void setListeners() {

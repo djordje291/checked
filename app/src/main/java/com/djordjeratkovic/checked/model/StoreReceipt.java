@@ -2,24 +2,22 @@ package com.djordjeratkovic.checked.model;
 
 public class StoreReceipt {
 
-    private int storeDocRef;
+    private String storeDocRef;
     private int price;
-    private int quantity;
 
     public StoreReceipt() {
     }
 
-    public StoreReceipt(int storeDocRef, int price, int quantity) {
+    public StoreReceipt(String storeDocRef, int price) {
         this.storeDocRef = storeDocRef;
         this.price = price;
-        this.quantity = quantity;
     }
 
-    public int getStoreDocRef() {
+    public String getStoreDocRef() {
         return storeDocRef;
     }
 
-    public void setStoreDocRef(int storeDocRef) {
+    public void setStoreDocRef(String storeDocRef) {
         this.storeDocRef = storeDocRef;
     }
 
@@ -29,13 +27,5 @@ public class StoreReceipt {
 
     public void setPrice(int price) {
         this.price = price;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
     }
 }

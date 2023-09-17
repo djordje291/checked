@@ -5,6 +5,8 @@ public class Constants {
     public static final String KEY_USER_ID = "userId";
     public static final String KEY_DATABASE_REFERENCE = "Databases";
     public static final String KEY_PRODUCT_REFERENCE = "Products";
+    public static final String KEY_SHOPPING_ITEM_REFERENCE = "ShoppingItems";
+    public static final String KEY_STORE_REFERENCE = "Stores";
     public static final String KEY_DATABASE_ID = "databaseId";
     public static final int PERMISSION_REQUEST_CAMERA = 101;
     public static final String PRODUCT_DIALOG_TAG = "dialog_product";
@@ -21,4 +23,5 @@ public class Constants {
     public static final String KEY_PRICE = "price";
     public static final String KEY_HAS_LOW = "hasLow";
     public static final String KEY_STORAGE_DIR = "gs://checked-7b32c.appspot.com/";
+    public static final String KEY_STORE_RECEIPTS = "storeReceipts";
 }

@@ -5,16 +5,21 @@ import java.util.List;
 public class ShoppingItem {
 
     private String name;
-    private ProductCategory category;
+    private int category;
     private List<StoreReceipt> storeReceipts;
+    private String databaseId;
+    private String docRef;
+    private int quantity;
 
     public ShoppingItem() {
     }
 
-    public ShoppingItem(String name, ProductCategory category, List<StoreReceipt> storeReceipts) {
+    public ShoppingItem(String name, int category, List<StoreReceipt> storeReceipts, String databaseId, int quantity) {
         this.name = name;
         this.category = category;
         this.storeReceipts = storeReceipts;
+        this.databaseId = databaseId;
+        this.quantity = quantity;
     }
 
     public String getName() {
@@ -25,11 +30,11 @@ public class ShoppingItem {
         this.name = name;
     }
 
-    public ProductCategory getCategory() {
+    public int getCategory() {
         return category;
     }
 
-    public void setCategory(ProductCategory category) {
+    public void setCategory(int category) {
         this.category = category;
     }
 
@@ -39,5 +44,29 @@ public class ShoppingItem {
 
     public void setStoreReceipts(List<StoreReceipt> storeReceipts) {
         this.storeReceipts = storeReceipts;
+    }
+
+    public String getDatabaseId() {
+        return databaseId;
+    }
+
+    public void setDatabaseId(String databaseId) {
+        this.databaseId = databaseId;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public String getDocRef() {
+        return docRef;
+    }
+
+    public void setDocRef(String docRef) {
+        this.docRef = docRef;
     }
 }

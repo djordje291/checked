@@ -34,6 +34,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> im
     //TODO: make a list of open cards so if its updated all get open
     //TODO: create a button so you can add a product to the shopping list
     // napravi listu i kad se updejtuje da proveris koji je smao updejtovan i da ga dodas na glavnu listu i samo njemu da se refresuje position
+    //TODO: set on hold constrainLayout add dialog for adding to shopping list
 
     private List<Product> products;
     private Context context;

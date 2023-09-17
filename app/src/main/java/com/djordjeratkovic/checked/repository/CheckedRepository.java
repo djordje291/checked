@@ -13,6 +13,8 @@ import com.djordjeratkovic.checked.model.ExpirationDate;
 import com.djordjeratkovic.checked.model.Item;
 import com.djordjeratkovic.checked.model.BarcodeAPI;
 import com.djordjeratkovic.checked.model.Product;
+import com.djordjeratkovic.checked.model.ShoppingItem;
+import com.djordjeratkovic.checked.model.Store;
 import com.djordjeratkovic.checked.repository.network.BarcodeAPIClient;
 import com.djordjeratkovic.checked.repository.network.BarcodeAPIClient2;
 import com.djordjeratkovic.checked.repository.network.BarcodeAPIService;
@@ -56,21 +58,30 @@ public class CheckedRepository {
     private FirebaseFirestore db;
     private CollectionReference databaseReference;
     private CollectionReference productReference;
+    private CollectionReference shoppingItemReference;
+    private CollectionReference storesReference;
     private StorageReference storageReference;
 
     private BarcodeAPIService barcodeAPIService;
 
     MutableLiveData<Product> product = new MutableLiveData<>();
     List<Product> productsList = new ArrayList<>();
+    List<ShoppingItem> shoppingItemsList = new ArrayList<>();
+    List<Store> storesList = new ArrayList<>();
 
     MutableLiveData<BarcodeAPI> barcodeAPI = new MutableLiveData<>();
     MutableLiveData<List<Product>> products = new MutableLiveData<>();
+    MutableLiveData<List<ShoppingItem>> shoppingItems = new MutableLiveData<>();
+    MutableLiveData<List<Store>> stores = new MutableLiveData<>();
 
     private CheckedRepository() {
         this.firebaseAuth = FirebaseAuth.getInstance();
         this.db = FirebaseFirestore.getInstance();
         this.databaseReference = db.collection(Constants.KEY_DATABASE_REFERENCE);
         this.productReference = db.collection(Constants.KEY_PRODUCT_REFERENCE);
+        this.shoppingItemReference = db.collection(Constants.KEY_SHOPPING_ITEM_REFERENCE);
+        this.storesReference = db.collection(Constants.KEY_STORE_REFERENCE);
+
         this.storageReference = FirebaseStorage.getInstance().getReference();
     }
 
@@ -364,6 +375,174 @@ public class CheckedRepository {
                         }
                     });
                 }
+            }
+        });
+    }
+
+    public void addShoppingItem(ShoppingItem shoppingItem) {
+        shoppingItem.setDatabaseId(CommonUtils.getDatabaseId(application));
+        shoppingItemReference.add(shoppingItem).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                Log.d(TAG, "onSuccess: added shopping item");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "onFailure: failed to add shopping item");
+            }
+        });
+    }
+
+    public MutableLiveData<List<ShoppingItem>> getShoppingItems() {
+        shoppingItemReference
+                .orderBy(Constants.KEY_CATEGORY)
+                .orderBy(Constants.KEY_NAME)
+                .whereEqualTo(Constants.KEY_DATABASE_ID, CommonUtils.getDatabaseId(application))
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                        if (error != null) {
+                            Log.d(TAG, error.toString());
+
+                            return;
+                        }
+
+                        if (value != null && !value.isEmpty()) {
+                            if (!shoppingItemsList.isEmpty()) {
+                                shoppingItemsList.clear();
+                            }
+                            for (DocumentSnapshot documentSnapshot : value.getDocuments()) {
+                                ShoppingItem shoppingItem = documentSnapshot.toObject(ShoppingItem.class);
+                                if (shoppingItem != null) {
+                                    shoppingItem.setDocRef(documentSnapshot.getId());
+                                }
+                                shoppingItemsList.add(shoppingItem);
+                            }
+                            shoppingItems.postValue(shoppingItemsList);
+                        } else {
+                            if (!shoppingItemsList.isEmpty()) {
+                                shoppingItemsList.clear();
+                            }
+                            shoppingItems.postValue(shoppingItemsList);
+                        }
+                    }
+                });
+        shoppingItems.setValue(shoppingItemsList);
+        return shoppingItems;
+    }
+
+    public void updateShoppingItem(ShoppingItem shoppingItem) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put(Constants.KEY_NAME, shoppingItem.getName());
+        updates.put(Constants.KEY_CATEGORY, shoppingItem.getCategory());
+        updates.put(Constants.KEY_STORE_RECEIPTS, shoppingItem.getStoreReceipts());
+        shoppingItemReference.document(shoppingItem.getDocRef()).update(updates).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Log.d(TAG, "onSuccess: updated shopping item");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "onFailure: failed to update shopping item");
+            }
+        });
+    }
+
+    public void deleteShoppingItem(ShoppingItem shoppingItem) {
+        shoppingItemReference.document(shoppingItem.getDocRef()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Log.d(TAG, "onSuccess: deleted shopping item");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "onFailure: failed to delete shopping item");
+            }
+        });
+    }
+
+
+    public void addStore(Store store) {
+        store.setDatabaseId(CommonUtils.getDatabaseId(application));
+        storesReference.add(store).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                Log.d(TAG, "onSuccess: added store");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "onFailure: failed to add store");
+            }
+        });
+    }
+
+    public MutableLiveData<List<Store>> getStores() {
+        storesReference
+                .orderBy(Constants.KEY_NAME)
+                .whereEqualTo(Constants.KEY_DATABASE_ID, CommonUtils.getDatabaseId(application))
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                        if (error != null) {
+                            Log.d(TAG, error.toString());
+
+                            return;
+                        }
+
+                        if (value != null && !value.isEmpty()) {
+                            if (!storesList.isEmpty()) {
+                                storesList.clear();
+                            }
+                            for (DocumentSnapshot documentSnapshot : value.getDocuments()) {
+                                Store store = documentSnapshot.toObject(Store.class);
+                                if (store != null) {
+                                    store.setDocRef(documentSnapshot.getId());
+                                }
+                                storesList.add(store);
+                            }
+                            stores.postValue(storesList);
+                        } else {
+                            if (!storesList.isEmpty()) {
+                                storesList.clear();
+                            }
+                            stores.postValue(storesList);
+                        }
+                    }
+                });
+        stores.setValue(storesList);
+        return stores;
+    }
+
+    public void updateStore(Store store) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put(Constants.KEY_NAME, store.getName());
+        storesReference.document(store.getDocRef()).update(updates).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Log.d(TAG, "onSuccess: updated store");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "onFailure: failed to update store");
+            }
+        });
+    }
+
+    public void deleteStore(Store store) {
+        storesReference.document(store.getDocRef()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Log.d(TAG, "onSuccess: deleted store");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "onFailure: failed to delete store");
             }
         });
     }

@@ -68,22 +68,19 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-                <ImageButton
-                    android:id="@+id/deleteExpirationDate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/delete_button_background"
-                    android:padding="@dimen/dimen_8"
-                    app:tint="@color/red"
-                    android:layout_marginBottom="@dimen/dimen_14"
-                    android:src="@drawable/ic_delete"
-                    app:layout_constraintBottom_toBottomOf="@+id/expirationDate"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/expirationDate"
-                    app:layout_constraintTop_toTopOf="@+id/expirationDate" />
-
-
-
+        <ImageButton
+            android:id="@+id/deleteExpirationDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/dimen_14"
+            android:background="@drawable/delete_button_background"
+            android:padding="@dimen/dimen_8"
+            android:src="@drawable/ic_delete"
+            app:layout_constraintBottom_toBottomOf="@+id/expirationDate"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/expirationDate"
+            app:layout_constraintTop_toTopOf="@+id/expirationDate"
+            app:tint="@color/red" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline4"

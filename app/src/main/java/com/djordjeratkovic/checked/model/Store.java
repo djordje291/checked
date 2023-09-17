@@ -1,25 +1,28 @@
 package com.djordjeratkovic.checked.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Store {
 
-    private int docRef;
+    private String docRef;
     private String name;
     private String databaseId;
+    private List<ShoppingItem> shoppingItemList;
 
     public Store() {
     }
 
-    public Store(String name) {
+    public Store(String name, List<ShoppingItem> shoppingItems) {
         this.name = name;
+        this.shoppingItemList = shoppingItems;
     }
 
-    public int getDocRef() {
+    public String getDocRef() {
         return docRef;
     }
 
-    public void setDocRef(int docRef) {
+    public void setDocRef(String docRef) {
         this.docRef = docRef;
     }
 
@@ -37,5 +40,13 @@ public class Store {
 
     public void setDatabaseId(String databaseId) {
         this.databaseId = databaseId;
+    }
+
+    public List<ShoppingItem> getShoppingItemList() {
+        return shoppingItemList;
+    }
+
+    public void setShoppingItemList(List<ShoppingItem> shoppingItemList) {
+        this.shoppingItemList = shoppingItemList;
     }
 }

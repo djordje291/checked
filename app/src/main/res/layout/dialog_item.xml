@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="item"
+            type="com.djordjeratkovic.checked.model.ShoppingItem" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/name"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_8"
+            android:hint="@string/name"
+            app:counterEnabled="true"
+            app:counterMaxLength="30"
+            app:endIconMode="clear_text"
+            app:errorEnabled="true"
+            app:errorIconDrawable="@drawable/ic_error"
+            app:helperText="@string/required"
+            app:helperTextTextColor="@color/red"
+            app:layout_constraintStart_toStartOf="@id/g1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/g3">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/nameEditText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textSize="13sp"
+                android:maxLines="1"
+                android:inputType="text"
+                android:maxLength="50"
+                android:text="@{item.name}" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/quantity"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/quantity"
+            android:layout_marginTop="@dimen/dimen_8"
+            app:endIconMode="clear_text"
+            app:helperText="@string/required"
+            app:helperTextTextColor="@color/red"
+            app:layout_constraintEnd_toStartOf="@id/g2"
+            app:layout_constraintStart_toStartOf="@id/g4"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/quantityEditText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:maxLines="1"
+                android:inputType="number"
+                android:text="@{Integer.toString(item.quantity)}"
+                android:textSize="13sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/categoryTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dimen_8"
+            android:text="@string/categories"
+            android:textColor="@color/orange"
+            android:textSize="15sp"
+            app:layout_constraintStart_toEndOf="@id/g1"
+            app:layout_constraintTop_toBottomOf="@id/name" />
+
+        <RadioButton
+            android:id="@+id/categoryBtn1"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            app:layout_constraintWidth_percent="0.2"
+            app:layout_constraintHeight_percent="0.1"
+            android:layout_marginTop="@dimen/dimen_8"
+            android:checked="@{item.category == 1 ? true : false}"
+            android:background="@drawable/category_radio_button_background"
+            android:button="@null"
+            android:drawableTop="@drawable/ic_bottle_of_water"
+            android:gravity="center"
+            android:paddingTop="@dimen/dimen_8"
+            android:text="@string/drinks"
+            android:textColor="@drawable/category_radio_button_text"
+            android:textSize="11sp"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintStart_toEndOf="@id/g1"
+            app:layout_constraintTop_toBottomOf="@id/categoryTV" />
+
+        <RadioButton
+            android:id="@+id/categoryBtn2"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            app:layout_constraintWidth_percent="0.2"
+            app:layout_constraintHeight_percent="0.1"
+            android:background="@drawable/category_radio_button_background"
+            android:button="@null"
+            android:drawableTop="@drawable/ic_bread"
+            android:gravity="center"
+            android:checked="@{item.category == 2 ? true : false}"
+            android:paddingTop="@dimen/dimen_8"
+            android:text="@string/basic_foods"
+            android:textColor="@drawable/category_radio_button_text"
+            android:textSize="11sp"
+            app:layout_constraintBottom_toBottomOf="@id/categoryBtn1"
+            app:layout_constraintEnd_toStartOf="@id/categoryBtn3"
+            app:layout_constraintStart_toEndOf="@id/categoryBtn1"
+            app:layout_constraintTop_toTopOf="@id/categoryBtn1" />
+
+        <RadioButton
+            android:id="@+id/categoryBtn3"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            app:layout_constraintWidth_percent="0.2"
+            app:layout_constraintHeight_percent="0.1"
+            android:background="@drawable/category_radio_button_background"
+            android:button="@null"
+            android:drawableTop="@drawable/ic_milk"
+            android:gravity="center"
+            android:paddingTop="@dimen/dimen_8"
+            android:checked="@{item.category == 3 ? true : false}"
+            android:text="@string/dairy"
+            android:textColor="@drawable/category_radio_button_text"
+            android:textSize="11sp"
+            app:layout_constraintEnd_toStartOf="@id/categoryBtn4"
+            app:layout_constraintStart_toEndOf="@id/categoryBtn2"
+            app:layout_constraintTop_toTopOf="@id/categoryBtn1"
+            app:layout_constraintBottom_toBottomOf="@id/categoryBtn1" />
+
+        <RadioButton
+            android:id="@+id/categoryBtn4"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            app:layout_constraintWidth_percent="0.2"
+            app:layout_constraintHeight_percent="0.1"
+            android:background="@drawable/category_radio_button_background"
+            android:button="@null"
+            android:drawableTop="@drawable/ic_steak"
+            android:gravity="center"
+            android:paddingTop="@dimen/dimen_8"
+            android:checked="@{item.category == 4 ? true : false}"
+            android:text="@string/meat"
+            android:textColor="@drawable/category_radio_button_text"
+            android:textSize="11sp"
+            app:layout_constraintEnd_toStartOf="@id/g2"
+            app:layout_constraintTop_toTopOf="@id/categoryBtn1"
+            app:layout_constraintBottom_toBottomOf="@id/categoryBtn1" />
+
+
+        <RadioButton
+            android:id="@+id/categoryBtn5"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            app:layout_constraintWidth_percent="0.2"
+            app:layout_constraintHeight_percent="0.1"
+            android:layout_marginTop="@dimen/dimen_8"
+            android:background="@drawable/category_radio_button_background"
+            android:button="@null"
+            android:drawableTop="@drawable/ic_avocado"
+            android:gravity="center"
+            android:paddingTop="@dimen/dimen_8"
+            android:text="@string/fruits_and_vegetables"
+            android:checked="@{item.category == 5 ? true : false}"
+            android:textColor="@drawable/category_radio_button_text"
+            android:textSize="11sp"
+            app:layout_constraintStart_toEndOf="@id/g1"
+            app:layout_constraintTop_toBottomOf="@id/categoryBtn1" />
+
+        <RadioButton
+            android:id="@+id/categoryBtn6"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            app:layout_constraintWidth_percent="0.2"
+            app:layout_constraintHeight_percent="0.1"
+            android:background="@drawable/category_radio_button_background"
+            android:button="@null"
+            android:drawableTop="@drawable/ic_cookies"
+            android:gravity="center"
+            android:paddingTop="@dimen/dimen_8"
+            android:checked="@{item.category == 6 ? true : false}"
+            android:text="@string/sweets_and_snacks"
+            android:textColor="@drawable/category_radio_button_text"
+            android:textSize="11sp"
+            app:layout_constraintEnd_toStartOf="@id/categoryBtn7"
+            app:layout_constraintStart_toEndOf="@id/categoryBtn5"
+            app:layout_constraintTop_toTopOf="@id/categoryBtn5"
+            app:layout_constraintBottom_toBottomOf="@id/categoryBtn5" />
+
+        <RadioButton
+            android:id="@+id/categoryBtn7"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            app:layout_constraintWidth_percent="0.2"
+            app:layout_constraintHeight_percent="0.1"
+            android:background="@drawable/category_radio_button_background"
+            android:button="@null"
+            android:drawableTop="@drawable/ic_ice_cream_cone"
+            android:gravity="center"
+            android:paddingTop="@dimen/dimen_8"
+            android:checked="@{item.category == 7 ? true : false}"
+            android:paddingStart="@dimen/dimen_4"
+            android:paddingEnd="@dimen/dimen_4"
+            android:text="@string/frozen_foods"
+            android:textColor="@drawable/category_radio_button_text"
+            android:textSize="11sp"
+            app:layout_constraintEnd_toStartOf="@id/categoryBtn8"
+            app:layout_constraintStart_toEndOf="@id/categoryBtn6"
+            app:layout_constraintTop_toTopOf="@id/categoryBtn5"
+            app:layout_constraintBottom_toBottomOf="@id/categoryBtn5" />
+
+
+        <RadioButton
+            android:id="@+id/categoryBtn8"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            app:layout_constraintWidth_percent="0.2"
+            app:layout_constraintHeight_percent="0.1"
+            android:background="@drawable/category_radio_button_background"
+            android:button="@null"
+            android:drawableTop="@drawable/ic_baby_bottle"
+            android:checked="@{item.category == 8 ? true : false}"
+            android:gravity="center"
+            android:paddingTop="@dimen/dimen_8"
+            android:text="@string/household"
+            android:textColor="@drawable/category_radio_button_text"
+            android:textSize="11sp"
+            app:layout_constraintEnd_toStartOf="@id/g2"
+            app:layout_constraintTop_toTopOf="@id/categoryBtn5"
+            app:layout_constraintBottom_toBottomOf="@id/categoryBtn5" />
+
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/g1"
+            android:layout_width="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.05"
+            android:layout_height="wrap_content" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/g2"
+            android:layout_width="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.95"
+            android:layout_height="wrap_content" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/g3"
+            android:layout_width="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.55"
+            android:layout_height="wrap_content" />
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/g4"
+            android:layout_width="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.65"
+            android:layout_height="wrap_content" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
